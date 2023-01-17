@@ -4,6 +4,7 @@
 ## 2023-01-17 
 [유튜브 영상](https://www.youtube.com/watch?v=PLDFgKzWy3o)
 
-**milestone**
-	중요한 단계
+**milestone** 중요한 단계
+
+**
 <hr/>
