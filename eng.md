@@ -1,8 +1,11 @@
 영어 영상, 기사 등 보면서 익히고 헷갈리는 단어 적기
 ======================================================
 
-## 2023-01-17 """https://www.youtube.com/watch?v=PLDFgKzWy3o"""
+## 2023-01-17 
+[유튜브 영상](https://www.youtube.com/watch?v=PLDFgKzWy3o)
 
-milestone
+**milestone**
+
 	중요한 단계
 
+<hr/>
