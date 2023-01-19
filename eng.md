@@ -6,7 +6,7 @@
 
 **milestone** 중요한 단계
 
-     2023-01-18 이어서 진행
+## 2023-01-18 이어서 진행
 
 **surpass** 능가하다, 뛰어넘다
 
@@ -54,9 +54,10 @@
 
 **statistic** 통계
 
-<hr/>
+----------------------------
 
 ## 2023-01-19
+
 [유튜브 영상](https://www.youtube.com/watch?v=0pe241gW0dQ)
 
 
@@ -107,3 +108,61 @@
 **pleas** 간청, 탄원
 
 **accustomed** 익숙한
+
+### 다른 영상 추가본
+
+[유튜브 링크](https://www.youtube.com/watch?v=19ITrZHrPlg)
+
+
+**unblooded** 순종이 아닌, 잡종의
+
+**bizarre** 기괴한
+
+**intent** 의지
+
+**assimilate** 동화하다
+
+**initially** 처음에
+
+**debut** 데뷔
+
+**seamless** 원활한
+
+**initiative** (새로운)계획, 진취성
+
+**posh** (값 비싸고) 우아한
+
+**equivalent** 동등한
+
+**turn off** 끄다, 신경끄다, (길을)벗어나다
+
+**make a point** 주장을 보여주다, 정당함을 보여주다
+
+**plunge** 거꾸라지다, 급락하다
+
+**fiscal** 국가 재정의
+
+**draconian** 매우 엄격한
+
+**file for** 제기하다
+
+**fabricate** 날조하다
+
+**house of cards** 불안정한 계획
+
+**fell apart** 다 허물어질 정도이다
+
+**collapse** 붕괴되다
+
+**norm** 표준
+
+**underlying** 밑에 있는
+
+**brew** 꾸미다, 양조하다
+
+**nondescript** 정체모를 사람, 정체를 알 수 있는
+
+**mediocre** 평범한
+
+-------------------------------------------
+
