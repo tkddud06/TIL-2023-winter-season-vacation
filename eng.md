@@ -6,7 +6,7 @@
 
 **milestone** 중요한 단계
 
-## 2023-01-18 이어서 진행
+     2023-01-18 이어서 진행
 
 **surpass** 능가하다, 뛰어넘다
 
@@ -18,7 +18,7 @@
 
 **underway** 진행중인
 
-air raid 공습
+*air raid* 공습
 
 **soaring** 급상승하는
 
@@ -32,15 +32,15 @@ air raid 공습
 
 **scrutiny** 정밀 조사
 
-mortar 모르타르(시멘트, 모래 섞은 반죽)
+*mortar* 모르타르(시멘트, 모래 섞은 반죽)
 
-mosque 모스크, 회교 사원
+*mosque* 모스크, 회교 사원
 
 **avert** 피하다
 
 **ruling** 결정,판결
 
-anti-semitic 빈유대적인
+*anti-semitic* 빈유대적인
 
 **take into custody** 구금시키다
 
