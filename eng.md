@@ -166,3 +166,56 @@
 
 -------------------------------------------
 
+## 2023-01-20
+
+[유튜브 영상](https://www.youtube.com/watch?v=PeXpY-p5NsM)
+
+**behemoth** 거대 기업(조직체)
+
+**pledge** 약속
+
+**commitment** 약속
+
+**executive** 경영진, 관리직, 행정장관, 집행력이 있는
+
+**outline** 개요, 윤곽을 그리다
+
+**rollout** 발표하다
+
+**hold back** 뭔가 되는걸 붙잡다, 막다 뉘앙스
+
+*due diligence* 피해를 끼치지 않게 노력하는 것(법), 비즈니스와 관련한 합리적인 분석이나 근거(비즈니스)
+
+**conservative** 보수적인
+
+**sentiment** 감정
+
+**footing** 기초, 베이스
+
+**constraint** 제약
+
+**usher** 문지기, 이끌다
+
+**creep** 기어가다
+
+*interim* 인터뷰 하는 시간
+
+**outpace** 앞지르다, 능가하다
+
+**hand in hand** 함께
+
+**rally** 다시 모이다
+
+**lofty** 고상한, 높은
+
+**gargantuan** 거대한
+
+**prowess** 기량
+
+*rhetoric* 수사학의, 미사여구
+
+*far cry* 먼 거리
+
+*niche* 드문 시장
+
+----------------------------------------
