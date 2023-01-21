@@ -21,7 +21,7 @@
 }
 */
 
-
+/*
 int change_val(int* p) {
 	*p = 3;
 
@@ -33,4 +33,29 @@ int main() {
 	std::cout << number << std::endl;
 	change_val(&number);
 	std::cout << number << std::endl;
+}
+*/
+
+int main()
+{
+	int num;
+	int& nickname = num;
+	std::cout << "nice meet you!\n" << "What's your number? : ";
+	std::cin >> nickname;
+
+	if (nickname > 100)
+	{
+		std::cout << "oh! you higher than 100!" << std::endl;
+	}
+	else
+	{
+		std::cout << "oh, your number is " << nickname << "!!" << std::endl;
+	}
+
+	for (int i = 0; i < 10; i++)
+	{
+		std::cout << nickname << std::endl;
+	}
+
+	return 0;
 }
