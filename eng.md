@@ -219,3 +219,73 @@
 *niche* 드문 시장
 
 ----------------------------------------
+
+
+## 2023-01-21
+
+[유튜브 영상](https://www.youtube.com/watch?v=-ioosWOWSxQ)
+
+**by far** 매우 같은 뉘앙스
+
+**burden** 부담
+
+**insulate** 절연하다
+
+**catalyst** 촉매
+
+**ago** 이전. 과거.
+
+**preventative** 예빵적인
+
+**transparency** 투명도
+
+**counterintuitive** 직관적이지 않은
+
+**relentless** 끈질긴, 정도를 모르는
+
+**reimburse** 상환하다
+
+**induce** 유도하다
+
+**lenient** 허술한(안 엄격하고, 관대한)
+
+**culmination** 최고점
+
+**backlash** 급격한 반발 움직임
+
+**pave** 포장하다
+
+**pave the way for** ~를 쉽게 하다
+
+**proliferate** 증식하다
+
+**deduction** 공제
+
+*policyholder* 보험 가입자
+
+**upfront** 앞서
+
+**kick in** 시작하다
+
+**discern** 식별하다
+
+*skin in the game* 투자 리스크
+
+**touted** 각광받는? 각광하다? 내세우다?
+
+**predate** 먼저 오다,포식
+
+**eligibility** 자격이 있는 정도
+
+**adequate** 적절한, 충분한
+
+**incur** 초래하다
+
+**inadvertent** 부주의한, 무심코
+
+**arbitration** 중재
+
+**left up** 달려있다
+
+--------------------------------------------
+
