@@ -289,3 +289,49 @@
 
 --------------------------------------------
 
+## 2023-01-22
+
+[유튜브 영상](https://www.youtube.com/watch?v=ojVN3cF0i7k)
+
+**infiltrate** (조용히, 서서히)침투하다, 스며들다
+
+**counterfeit** 위조 물건, 위조의
+
+**fraudster** 사기꾼
+
+**jot** 작은
+
+**tittle** 작은
+
+**unfettered** 구속되지 않은
+
+**retain** 유지하다
+
+**bonfire** 큰 횃불, 화재? 뜨거운 감자 느낌인듯
+
+**bid** (특히 경매에서) 값을 매기다, 부르다, 가격제시
+
+**slavishly** 노예같이
+
+*diktat* 독재
+
+**unilaterally** 일방적으로
+
+**shred** 조각, 조각내다(종이를 분쇄하듯)
+
+**repeal** 폐지, 폐지하다
+
+**insist** 주장하다
+
+**vacancy** 빈방 있음, 빈자리
+
+**parliamentary** 의회의
+
+**audacious** 대담한
+
+**tantamount** 동등한
+
+**caveat** 경고
+
+-------------------------------------------------------------
+
