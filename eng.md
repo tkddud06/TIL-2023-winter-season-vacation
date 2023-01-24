@@ -335,3 +335,127 @@
 
 -------------------------------------------------------------
 
+## 2023-01-24
+
+[유튜브 영상](https://www.youtube.com/watch?v=VYJtb2YXae8)
+
+**constantly** 항상
+
+**poll** 투표하다
+
+**wax** 밀랍
+
+2 **intricate** 복잡함
+
+**bulky** 부피가 큰
+
+**temperamental** 변덕스러운,신경질적인(예민한 그런 느낌의 뉘앙스)
+
+**impede** 지연시키다, 방해하다
+
+**shrink** 수축시키다, 줄어들게 하다
+
+**slash** (칼 등으로)긋다, 줄이다
+
+**roast** (특히 오븐 등으로)굽다
+
+**intelligible** 쉽게 이해할 수 있는
+
+*clang* 금속이 쨍그랑 하는 소리
+
+*enchilada* 빵 이름. 일상에선, 무언가 묶음체 같은거..를 비유할 때 쓰는 명사로도 쓰임
+
+**crux** (문제나 쟁점의)가장 중요한 부분
+
+**sleek** 매끈한, 윤이 나는
+
+**band aid** 임시 해결책, 반창고
+
+**revert** (이전 상태로)되돌아가다
+
+**pristine** 새것 같은, 처음에 속하는(원래 그대로의)
+
+**impeccable** 흠 잡을 데 없는
+
+*chill pill* 진정하는 약.(실제로 존재하지 않는 가상의 표현)
+
+### 다른 영상 추가본
+
+[유튜브 영상](https://www.youtube.com/watch?v=mErdVnlmERM)
+
+**pedigree** 족보
+
+*bragging rights* 자랑하고 뽐낼 수 있는 거
+
+2 **relentless** 끈질긴, 정도를 모르는
+
+**eager** 열렬한, 간절히 바라는
+
+**aspiration** 열망, 염원
+
+**aspirational** 열망적인, 출세지향적인
+
+**slew** 많음, 다수 / 휙 돌다(미끄러지다)
+
+**vie** 다투다, 경쟁하다 // pp형이 vying인 특이한 친구
+
+**mantle** (특히 남에게 물려주는 중요한)~의 역할, (표면을 덮는)꺼풀, (표면을)덮다
+
+**magnificent** 참으로 아름다운, 훌륭한
+
+**undergo** (특히 안 좋은 일을)겪다, 받다
+
+**contend** (경쟁 등에서)다투다, (특히 언쟁 중)주장하다
+
+**side by side** 나란히, 함께 같은 상황에서
+
+**grace** 우아함, 품위, 꾸미다, 빛내다
+
+**somewhere** 어딘가에서
+
+**consecutive** 연속적인
+
+**seep** 스미다, 배다
+
+**convince** 납득시키다, 설득하다
+
+**execution** 처형, 실행
+
+**lean** 기울다 / 단순한(호리호리한)
+
+**etch** (유리 금속 등에)식각(에칭)하다
+
+**persist** 집요하게 계속하다
+
+**complacent** 자기만족적인, 안일한
+
+**rectify** 제자리로 돌려놓다
+
+**solidity** 견고함
+
+**lure** 꾀다, 유혹하다
+
+**at times** 때때로
+
+**formidable** 가공할 만한, 어마어마한
+
+**cultivated** 세련된, 교양 있는
+
+**affluent** 부유한
+
+**consistently** 한결같이
+
+2 **fiscal** 국가와 관련된 재정의
+
+**spin** 분리하다.. 라는 의미도 있나본데 잘 모르겠음.
+
+**nimble** (동작이)빠른, 날렵한, 민첩한
+
+**headway** 진전
+
+**make headway** (특히 서서히, 어렵게)나아가다, 전진하다
+
+------------------------------------------------------------
+
+
+
