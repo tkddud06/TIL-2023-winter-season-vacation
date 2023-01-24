@@ -353,7 +353,7 @@ c언어 방식의 struct 로 프로그램 만들던걸 이야기해주며, 객�
 
 기계어, 어셈블리어, 2세대언어, 3세대(절차지향), 이후 객체지향 소개해줌.
 
-## 2023-01-23
+### 2023-01-23
 
 객체
 
@@ -452,3 +452,348 @@ int main() {
 
 ------------------------------------------------
 
+## 4-2
+
+### 2023-01-24
+
+#### 함수의 오버로딩, 생성자, 디폴트 생성자
+
+##### 오버로딩
+
+음.. 그렇다면 함수의 오버로딩이라는 것은 '함수에 과부하를 주는 것' 인가 라는 생각도 드실 텐데요, 사실 맞는 말씀입니다. 사실 C 언어 에서는 하나의 이름을 가지는 함수는 딱 1 개만 존재할 수 밖에 없기에 과부하라는 말 자체가 성립이 안됬지요.
+
+`printf` 는 C 라이브러리에 단 한 개 존재하고, `scanf` 도 C 라이브러리에 단 1 개 만 존재합니다. 
+
+>하지만 C++ 에서는 같은 이름을 가진 함수가 여러개 존재해도 됩니다. 즉, 함수의 이름에 과부하 가 걸려도 상관이 없다는 것이지요!
+
+```c++
+/* 함수의 오버로딩 */
+#include <iostream>
+
+void print(int x) { std::cout << "int : " << x << std::endl; }
+void print(char x) { std::cout << "char : " << x << std::endl; }
+void print(double x) { std::cout << "double : " << x << std::endl; }
+
+int main() {
+  int a = 1;
+  char b = 'c';
+  double c = 3.2f;
+
+  print(a);
+  print(b);
+  print(c);
+
+  return 0;
+}
+```
+
+>C++ 에서는 함수의 이름이 같더라도 인자가 다르면 다른 함수 라고 판단하기 때문에 오류가 발생하지 않는 것입니다.
+
+
+만약, 위에서 char x를 인자로 받는 정의가 삭제되어도 동작한다.
+아래 내용을 참고.
+
+`int` 타입의 인자나 `double` 타입의 인자를 하나 받는 함수 하나 밖에 없습니다. 하지만 `main` 에서 각기 다른 타입의 인자들 (`int`, `char`, `double`) 로 `print` 함수를 호출하게 됩니다. 물론 `a` 나 `c` 의 경우 각자 자기를 인자로 하는 정확한 함수들이 있어서 성공적으로 호출 될 수 있겠지만,`char` 의 경우 자기와 정확히 일치하는 인자를 가지는 함수가 없기 때문에 '자신과 최대로 근접한 함수'를 찾게 됩니다.
+
+C++ 컴파일러에서 함수를 오버로딩하는 과정은 다음과 같습니다.
+
+###### 1 단계
+
+자신과 타입이 정확히 일치하는 함수를 찾는다.
+
+###### 2 단계
+
+정확히 일치하는 타입이 없는 경우 아래와 같은 형변환을 통해서 일치하는 함수를 찾아본다.
+
+-   `Char, unsigned char, short` 는 `int` 로 변환된다.
+    
+-   `Unsigned short` 는 `int` 의 크기에 따라 `int` 혹은 `unsigned int` 로 변환된다.
+    
+-   `Float` 은 `double` 로 변환된다.
+    
+-   `Enum` 은 `int` 로 변환된다.
+    
+
+###### 3 단계
+
+위와 같이 변환해도 일치하는 것이 없다면 아래의 좀더 포괄적인 형변환을 통해 일치하는 함수를 찾는다.
+
+-   임의의 숫자(numeric) 타입은 다른 숫자 타입으로 변환된다. (예를 들어 `float -> int)`
+    
+-   `Enum` 도 임의의 숫자 타입으로 변환된다 (예를 들어 `Enum -> double)`
+    
+-   `0` 은 포인터 타입이나 숫자 타입으로 변환된 0 은 포인터 타입이나 숫자 타입으로 변환된다
+    
+-   포인터는 `void` 포인터로 변환된다.
+    
+
+###### 4 단계
+
+유저 정의된 타입 변환으로 일치하는 것을 찾는다 (이 부분에 대해선 나중에 설명!) ([출처](http://www.learncpp.com/cpp-tutorial/76-function-overloading/))
+
+만약에 컴파일러가 위 과정을 통하더라도 
+**일치하는 함수를 찾을 수 없거나** 
+**같은 단계에서 두 개 이상이 일치하는 경우**
+에 모호하다 (ambiguous) 라고 판단해서 오류를 발생하게 됩니다.
+
+
+
+
+```c++
+include<iostream>
+
+    class Date {
+  int year_;
+  int month_;  // 1 부터 12 까지.
+  int day_;    // 1 부터 31 까지.
+
+ public:
+  void SetDate(int year, int month, int date);
+  void AddDay(int inc);
+  void AddMonth(int inc);
+  void AddYear(int inc);
+
+  // 해당 월의 총 일 수를 구한다.
+  int GetCurrentMonthTotalDays(int year, int month);
+
+  void ShowDate();
+};
+
+void Date::SetDate(int year, int month, int day) {
+  year_ = year;
+  month_ = month;
+  day_ = day;
+}
+
+int Date::GetCurrentMonthTotalDays(int year, int month) {
+  static int month_day[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+  if (month != 2) {
+    return month_day[month - 1];
+  } else if (year % 4 == 0 && year % 100 != 0) {
+    return 29;  // 윤년
+  } else {
+    return 28;
+  }
+}
+
+void Date::AddDay(int inc) {
+  while (true) {
+    // 현재 달의 총 일 수
+    int current_month_total_days = GetCurrentMonthTotalDays(year_, month_);
+
+    // 같은 달 안에 들어온다면;
+    if (day_ + inc <= current_month_total_days) {
+      day_ += inc;
+      return;
+    } else {
+      // 다음달로 넘어가야 한다.
+      inc -= (current_month_total_days - day_ + 1);
+      day_ = 1;
+      AddMonth(1);
+    }
+  }
+}
+
+void Date::AddMonth(int inc) {
+  AddYear((inc + month_ - 1) / 12);
+  month_ = month_ + inc % 12;
+  month_ = (month_ == 12 ? 12 : month_ % 12);
+}
+
+void Date::AddYear(int inc) { year_ += inc; }
+
+void Date::ShowDate() {
+  std::cout << "오늘은 " << year_ << " 년 " << month_ << " 월 " << day_
+            << " 일 입니다 " << std::endl;
+}
+
+int main() {
+  Date day;
+  day.SetDate(2011, 3, 1);
+  day.ShowDate();
+
+  day.AddDay(30);
+  day.ShowDate();
+
+  day.AddDay(2000);
+  day.ShowDate();
+
+  day.SetDate(2012, 1, 31);  // 윤년
+  day.AddDay(29);
+  day.ShowDate();
+
+  day.SetDate(2012, 8, 4);
+  day.AddDay(2500);
+  day.ShowDate();
+  return 0;
+}
+```
+
+코드 예제.
+> 해당 코드에서, Data::를 명시한 이유는, 해당 함수들이 Data의 멤버 메소드임을 표기해준 것임. 표기하지 않을 시, 별개의 새로운 함수를 정의하게 됨.
+
+대부분의 클래스는 깔끔함을 위해 위처럼 따로 표기함.(후에 배울 템플릿 클래스라는 것만 예외로 같이 쓴다고 함)
+
+
+
+#### 생성자 빌드업
+
+그럼 이제 `main` 함수를 살펴 봅시다. 위 처럼 `day` 인스턴스를 생성해서 `SetDate` 로 초기화 한 다음에 `ShowDate` 로 내용을 한 번 보여주고, 또 `AddDay` 을 해서 30일을 증가 시킨뒤 다시 새로운 날짜를 출력하도록 하였습니다. 여기서 가장 중요한 부분은 무엇일까요? 당연하게도, 처음의 `SetDate` 부분 입니다. 만일 `SetDate` 를 하지 않았더라면 초기화 되지 않은 값들에 덧셈 과 출력 명령이 내려져서
+
+![](https://modoocode.com/img/1479614F4F4F099D33A88E.webp)
+
+위 처럼 이상한 쓰레기 값이 출력되게 되거든요. 그런데 문제는 이렇게 `SetDate` 함수를 사람들이 꼭 뒤에 써주지 않는 다는 말입니다. 
+
+물론 훌륭한 프로그래머들은 생성 후 초기화 를 항상 숙지하고 있겠지만 간혹 실수로 생성한 객체를 초기화 하는 과정을 빠트린다면 끔찍한 일이 벌어지게 됩니다.
+
+다행이도 C++ 에서는 이를 언어 차원에서 도와주는 장치가 있는데 바로 **생성자(constructor)** 입니다.
+
+#### 생성자
+
+```c++
+#include <iostream>
+
+class Date {
+  int year_;
+  int month_;  // 1 부터 12 까지.
+  int day_;    // 1 부터 31 까지.
+
+ public:
+  void SetDate(int year, int month, int date);
+  void AddDay(int inc);
+  void AddMonth(int inc);
+  void AddYear(int inc);
+
+  // 해당 월의 총 일 수를 구한다.
+  int GetCurrentMonthTotalDays(int year, int month);
+
+  void ShowDate();
+
+  Date(int year, int month, int day) { // 해당 부분이 생성자
+    year_ = year;
+    month_ = month;
+    day_ = day;
+  }
+};
+
+// 생략
+
+void Date::AddYear(int inc) { year_ += inc; }
+
+void Date::ShowDate() {
+  std::cout << "오늘은 " << year_ << " 년 " << month_ << " 월 " << day_
+            << " 일 입니다 " << std::endl;
+}
+int main() {
+  Date day(2011, 3, 1);
+  day.ShowDate();
+
+  day.AddYear(10);
+  day.ShowDate();
+
+  return 0;
+}
+```
+
+	생성자의 구조
+```c++
+// 객체를 초기화 하는 역할을 하기 때문에 리턴값이 없다!
+/* 클래스 이름 */ (/* 인자 */) {}
+```
+
+```c++
+Date day(2011, 3, 1);         // 암시적 방법 (implicit)
+Date day = Date(2012, 3, 1);  // 명시적 방법 (explicit)
+```
+> 마치 함수를 호출하듯이 사용하는 것이 암시적 방법, 명시적으로 생성자를 호출한다는 것을 보여주는 것이 명시적 방법 인데 많은 경우 암시적 방법으로 축약해서 쓸 수 있으므로 이를 선호하는 편입니다.
+
+
+
+
+##### 디폴트 생성자
+
+생성자를 클래스에 정의하지 않아도, 기본적으로 쓰레기값이 들어가게 자동으로 디폴트 생성자가 호출됨. 컴파일러가 자동으로 값을 넣어주는거지.
+
+그리고 우리가 수동으로 
+```c++
+  Date() {
+    year_ = 2012;
+    month_ = 7;
+    day_ = 12;
+  }
+```
+
+와 같은 방식으로 디폴트 생성자를 정의할 수도 있음.
+
+```c++
+Date day = Date(); // 명시적 방법
+Date day2; // 암시적 방법
+```
+
+> 주의!!! 디폴트 생성자에서 암시적 방법을 사용할 때, `Date day3()`와 같이 적지 않도록 주의할 것. 이는 리턴값이 Date인 day3함수를 정의하는 식이 된 것임.
+
+
+	절대로 인자가 없는 생성자를 호출하기 위해서 `A a()` 처럼 하면 안됩니다. 
+	해당 문장은 `A` 를 리턴하는 함수 `a` 를 정의한 문장 입니다. 반드시 그
+	냥 `A a` 와 같이 써야 합니다.
+
+참고.
+
+##### 명시적으로 디폴트 생성자 사용하기
+
+C++ 11 이전에는 디폴트 생성자를 사용하고 싶을 경우 그냥 생성자를 정의하지 않는 방법 밖에 없었습니다. 하지만 이 때문에 그 코드를 읽는 사용자 입장에서 개발자가 깜빡 잊고 생성자를 정의를 안한 것인지, 아니면 정말 디폴트 생성자를 사용하고파서 이런 것인지 알길이 없겠죠.
+
+다행이도 C++ 11 부터 명시적으로 디폴트 생성자를 사용하도록 명시할 수 있습니다.
+
+```c++
+class Test {
+ public:
+  Test() = default;  // 디폴트 생성자를 정의해라
+};
+```
+> 바로 위처럼 생성자의 선언 바로 뒤에 `= default` 를 붙여준다면, [Test](https://modoocode.com/test) 의 디폴트 생성자를 정의하라고 컴파일러에게 명시적으로 알려줄 수 있습니다.
+
+##### 생성자 오버로딩
+
+앞서 함수의 오버로딩에 대해 잠깐 짚고 넘어갔는데, 생성자 역시 함수 이기 때문에 마찬가지로 함수의 오버로딩이 적용될 수 있습니다. 쉽게 말해 해당 클래스의 객체를 여러가지 방식으로 생성할 수 있게 되겠지요.
+
+```c++
+class Date {
+  int year_;
+  int month_;  // 1 부터 12 까지.
+  int day_;    // 1 부터 31 까지.
+
+ public:
+  void ShowDate();
+
+  Date() {
+    std::cout << "기본 생성자 호출!" << std::endl;
+    year_ = 2012;
+    month_ = 7;
+    day_ = 12;
+  }
+
+  Date(int year, int month, int day) {
+    std::cout << "인자 3 개인 생성자 호출!" << std::endl;
+    year_ = year;
+    month_ = month;
+    day_ = day;
+  }
+};
+
+void Date::ShowDate() {
+  std::cout << "오늘은 " << year_ << " 년 " << month_ << " 월 " << day_
+            << " 일 입니다 " << std::endl;
+}
+int main() {
+  Date day = Date();
+  Date day2(2012, 10, 31);
+
+  day.ShowDate();
+  day2.ShowDate();
+
+  return 0;
+}
+```
+
+연습문제 푸는 중. 생각보다 어렵다. 중복이 일어나지 않을까 한참 고민했는데, 일어나지 않을 것 같다. 수학적 통찰력이 나는 좀 부족하다..
