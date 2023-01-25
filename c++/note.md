@@ -797,3 +797,155 @@ int main() {
 ```
 
 연습문제 푸는 중. 생각보다 어렵다. 중복이 일어나지 않을까 한참 고민했는데, 일어나지 않을 것 같다. 수학적 통찰력이 나는 좀 부족하다..
+
+### 2023-01-25
+
+연습문제 푸는 중..
+
+와 이거 정말 어렵다....... 나중에 다시 보러 와야겠다.
+
+### 못풀어서 다시 보러 올 부분
+
+
+----------------------------------------------------------
+
+
+## 4-3
+
+#### 복사 생성자, 소멸자
+
+스타크래프트 만들기..?
+
+```c++
+#include <iostream>
+
+class Marine {
+  int hp;                // 마린 체력
+  int coord_x, coord_y;  // 마린 위치
+  int damage;            // 공격력
+  bool is_dead;
+
+ public:
+  Marine();              // 기본 생성자
+  Marine(int x, int y);  // x, y 좌표에 마린 생성
+
+  int attack();                       // 데미지를 리턴한다.
+  void be_attacked(int damage_earn);  // 입는 데미지
+  void move(int x, int y);            // 새로운 위치
+
+  void show_status();  // 상태를 보여준다.
+};
+Marine::Marine() {
+  hp = 50;
+  coord_x = coord_y = 0;
+  damage = 5;
+  is_dead = false;
+}
+Marine::Marine(int x, int y) {
+  coord_x = x;
+  coord_y = y;
+  hp = 50;
+  damage = 5;
+  is_dead = false;
+}
+void Marine::move(int x, int y) {
+  coord_x = x;
+  coord_y = y;
+}
+int Marine::attack() { return damage; }
+void Marine::be_attacked(int damage_earn) {
+  hp -= damage_earn;
+  if (hp <= 0) is_dead = true;
+}
+void Marine::show_status() {
+  std::cout << " *** Marine *** " << std::endl;
+  std::cout << " Location : ( " << coord_x << " , " << coord_y << " ) "
+            << std::endl;
+  std::cout << " HP : " << hp << std::endl;
+}
+
+int main() {
+  Marine* marines[100];
+
+  marines[0] = new Marine(2, 3);
+  marines[1] = new Marine(3, 5);
+
+  marines[0]->show_status();
+  marines[1]->show_status();
+
+  std::cout << std::endl << "마린 1 이 마린 2 를 공격! " << std::endl;
+
+  marines[0]->be_attacked(marines[1]->attack());
+
+  marines[0]->show_status();
+  marines[1]->show_status();
+
+  delete marines[0];
+  delete marines[1];
+}
+
+```
+
+
+
+예전에, `new` 와 `delete` 에 대해서 배울 때 [malloc](https://modoocode.com/243) 과의 차이점에 대해서 잠깐 언급 했던 것이 기억 나나요? 그 때는 아직 내용을 다 배우지 못해서, `new` 와 [malloc](https://modoocode.com/243) 모두 동적으로 할당하지만 '무언가' 다르다고 했었는데, 위 코드에서 여러분들은 아마 눈치 채셨을 것이라 생각됩니다. 바로 `new` 의 경우 객체를 동적으로 생성하면서와 동시에 자동으로 생성자도 호출해준다는 점입니다.
+
+```c++
+marines[0] = new Marine(2, 3);
+marines[1] = new Marine(3, 5);
+```
+
+위와 같이 `Marine(2,3)` 과 `Marine(3,5)` 라는 생성자를 자동으로 호출해주지요. 이것이 바로 C++ 에 맞는 새로운 동적 할당이라고 볼 수 있습니다.
+
+```c++
+marines[0]->show_status();
+marines[1]->show_status();
+```
+
+물론 `Marine` 들의 포인터를 가리키는 배열이기 때문에 메소드를 호출할 때 . 이 아니라 `->` 를 사용해줘야 되겠지요. 마지막으로, 동적으로 할당한 메모리는 언제나 해제해 주어야 된다는 원칙에 따라
+
+```c++
+delete marines[0];
+delete marines[1];
+```
+
+를 해주어야 하겠지요.
+
+#### 소멸자
+
+```c++
+Marine::Marine(int x, int y, const char* marine_name) {
+  name = new char[strlen(marine_name) + 1];
+  strcpy(name, marine_name);
+  coord_x = x;
+  coord_y = y;
+  hp = 50;
+  damage = 5;
+  is_dead = false;
+}
+```
+
+
+우리는 분명히 위 코드에서 `name` 에 우리가 생성하는 마린의 이름을 넣어줄 때, `name` 을 동적으로 생성해서 문자열을 복사하였는데요, 그럼, 이렇게 동적으로 할당된 `char` 배열에 대한 `delete` 는 언제 이루어지는 것인가요?
+
+안타깝게도, 우리가 명확히 `delete` 를 지정하지 않는 한 자동으로 `delete` 가 되는 경우는 없습니다. 다시 말해서 우리가 동적으로 할당했던 저 `name` 은 영원히 메모리 공간 속에서 둥둥 떠다닌다는 말이지요. 사실 몇 바이트 정도 밖에 되지 않을 것이지만 위와 같은 `name` 들이 쌓이고 쌓이게 되면 메모리 누수 (Memory Leak) 이라는 문제점이 발생하게 됩니다 (가끔 몇몇 프로그램들이 비정상적으로 많은 메모리를 점유하는 것 보이시지 않나요?)
+
+>그렇다면, 만일 `main` 함수 끝에서 `Marine` 이 `delete` 될 때, 즉 우리가 생성했던 객체가 소멸 될 때 자동으로 호출되는 함수 - 마치 객체가 생성될 때 자동으로 호출 되었던 생성자 처럼 소멸 될 때 자동으로 호출되는 함수가 있다면 얼마나 좋을까요? 놀랍게도 이미 C++ 에서는 이 기능을 지원하고 있습니다. 바로 소멸자(Destructor) 이죠.
+
+>생성자가 클래스 이름과 똑같이 생겼다면 소멸자는 그 앞에 `~` 만 붙여주시면 됩니다. `~(클래스 이름)`
+
+
+위와 같이 생겼지요. 생성자와 한 가지 다른 점은, 소멸자는 인자를 아무것도 가지지 않는다는 것입니다. 생각해보세요. 소멸하는 객체에 인자를 넘겨서 무엇을 하겠습니까? 다시 말해, 소멸자는 오버로딩도 되지 않습니다.
+
+```c++
+Marine::~Marine() {
+  std::cout << name << " 의 소멸자 호출 ! " << std::endl;
+  if (name != NULL) {
+    delete[] name;
+  }
+```
+
+참고로 우리가 따로 생성자를 정의하지 않더라도 디폴트 생성자가 있었던 것 처럼, 소멸자도 디폴트 소멸자(Default Destructor)가 있습니다. 물론, 디폴트 소멸자 내부에선 아무런 작업도 수행하지 않습니다. 만일 소멸자가 필요 없는 클래스라면 굳이 소멸자를 따로 써줄 필요는 없습니다.
+
+#### 복사 생성자
+
