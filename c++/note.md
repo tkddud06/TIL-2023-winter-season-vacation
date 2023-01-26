@@ -949,3 +949,85 @@ Marine::~Marine() {
 
 #### 복사 생성자
 
+``` c++
+#include <string.h>
+#include <iostream>
+
+class Photon_Cannon {
+  int hp, shield;
+  int coord_x, coord_y;
+  int damage;
+
+ public:
+  Photon_Cannon(int x, int y);
+  Photon_Cannon(const Photon_Cannon& pc); // 이것!
+
+  void show_status();
+};
+Photon_Cannon::Photon_Cannon(const Photon_Cannon& pc) {
+  std::cout << "복사 생성자 호출 !" << std::endl;
+  hp = pc.hp;
+  shield = pc.shield;
+  coord_x = pc.coord_x;
+  coord_y = pc.coord_y;
+  damage = pc.damage;
+}
+Photon_Cannon::Photon_Cannon(int x, int y) {
+  std::cout << "생성자 호출 !" << std::endl;
+  hp = shield = 100;
+  coord_x = x;
+  coord_y = y;
+  damage = 20;
+}
+void Photon_Cannon::show_status() {
+  std::cout << "Photon Cannon " << std::endl;
+  std::cout << " Location : ( " << coord_x << " , " << coord_y << " ) "
+            << std::endl;
+  std::cout << " HP : " << hp << std::endl;
+}
+int main() {
+  Photon_Cannon pc1(3, 3);
+  Photon_Cannon pc2(pc1);
+  Photon_Cannon pc3 = pc2;
+
+  pc1.show_status();
+  pc2.show_status();
+}
+```
+
+> 복사 생성자의 표준 : `T(const T& a);`
+
+위와 같이 복사 생성자 내부에서 `pc` 의 인스턴스 변수들에 접근해서 객체의 `shield, coord_x, coord_y` 등을 초기화 할 수 는 있지만
+
+ `pc` 의 값 자체는 변경할 수 없다는 이야기 입니다. (왜냐하면 `const` 레퍼런스로 인자를 받았기 때문이죠! 아직도 이해가 안되시면 이전에 [포인터에서 const 의](https://modoocode.com/24) [용법](https://modoocode.com/24)을 떠올려보시기 바랍니다. 정확히 하는 동작이 동일합니다.)
+
+한 가지 중요한 점은 함수 내부에서 받은 인자의 값을 변화시키는 일이 없다면 꼭 `const` 를 붙여주시기 바랍니다. 위와 같이 복사 생성자의 경우도, 인자로 받은 `pc` 의 값을 변경할 일이 없기 때문에 아예 처음부터 `const` 인자로 받았지요. 이렇게 된다면 후에 발생 할 수 있는 실수들을 효과적으로 막을 수 있습니다. (예를 들어 `pc.coord_x = coord_x` 로 쓴다던지)
+
+>인자로 받는 변수의 내용을 함수 내부에서 바꾸지 않는다면 앞에 `const` 를 붙여 주는 것이 바람직합니다.
+
+>`pc3 = pc2` 를 했다면 이는 평범한 대입 연산 이겠지만, 생성 시에 대입하는 연산, 즉 위에 같이 `Photon_Cannon pc3 = pc2;` 한다면, 복사 생성자가 호출되게 되는 것입니다. 이런식으로 `Photon_Cannon pc3 = pc2;` 를 해석함으로써 사용자가 상당히 직관적이고 깔끔한 프로그래밍을 할 수 있습니다.
+
+`Photon_Cannon pc3 = pc2;` 와 
+
+```c++
+Photon_Cannon pc3;
+pc3 = pc2;
+```
+
+는 엄연히 다른 문장입니다. 왜냐하면 위의 것은 말 그대로 복사 생성자가 1 번 호출되는 것이고, 아래 것은 그냥 생성자가 1 번 호출되고, `pc3 = pc2;` 라는 명령이 실행되는 것이지요. 다시 한 번 강조하지만, 복사 생성자는 오직 '생성' 시에 호출된다는 것을 명심하시면 됩니다.
+
+그런데, 사실 디폴트 생성자와 디폴트 소멸자 처럼, C++ 컴파일러는 이미 디폴트 복사 생성자(Default copy constructor) 를 지원해 주고 있습니다. 위 코드에서 복사 생성자를 한 번 지워보시고 실행해보면, 이전과 정확히 동일한 결과가 나타남을 알 수 있습니다. 디폴트 복사 생성자의 경우 기존의 디폴트 생성자와 소멸자가 하는 일이 아무 것도 없었던 것과는 달리 실제로 '복사' 를 해줍니다.
+
+> 디폴트 복사 생성자가 있으며, 그는 디폴트 생성자와 달리 복사를 해주는 역할을 지님.
+
+#### 디폴트 복사 생성자의 한계
+
+클래스가 만약 힙에 메모리가 할당되는 자료를 지닐 때, 복사 과정 후 사용까지는 문제가 없지만, 소멸자를 통해 해당 메모리를 중복초기화 함으로서, 오류가 일어날 수 있음.
+
+그렇기 때문에, 해당 상황에서는 수동으로 복사 생성자를 이용하여 별개의 메모리를 할당시켜주어야 함.
+
+
+>혹시 이 강좌만 보고 뒤의 강좌를 안보시는 분들을 위해 노파심에 이야기 하지만, C++ 에서 문자열을 다룰 때 C 언어 처럼 널 종료 `char` 배열로 다루는 것을 매우 매우 매우 비추합니다. C++ 표준 라이브러리에서 [std::string](https://modoocode.com/237) 이라는 훌륭한 문자열 클래스를 제공하니까, 뒤의 강좌들도 꼭 읽어서 사용법을 숙지하시기 바랍니다.
+
+라는 참고사항이 있었다. 나는 계속 공부할 것이니, 우선 넘어감
+
