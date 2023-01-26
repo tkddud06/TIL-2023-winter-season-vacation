@@ -536,3 +536,66 @@
 
 -------------------------------------------------------------------------------
 
+## 2023-01-26
+
+[유튜브 영상](https://www.youtube.com/watch?v=4f0itTUU-fw)
+
+**commitment** 약속, 전념
+
+2 **retain** 유지하다
+
+[유튜브 영상](https://www.youtube.com/watch?v=_gLm0Jo0cnk)
+
+**branch out** 가지가 나오다, 기존에 하지 않던 새로운걸 시도하다, 기로에 드러서다
+
+**mounting** 증가되는
+
+**weave into** 짜서 ~를 만들다
+
+**lavish** 풍성한, 호화로운
+
+2 **executive** 경영진, 관리직, 행정장관, 집행력이 있는
+
+**pump out** (많은 양의) ~을 쏟아 내다, 만들어 내다
+
+**semiconductor** 반도체
+
+2 **culminate** 정점에 이르다, 끝이 나다
+
+**disprove** 반증하다
+
+**prohibitive** 엄두도 못낼 정도로 비싼, (법으로)금지하는
+
+**broke off** 분리하다(떼어내다), 일을 멈추다
+
+**edge** 끝, 날, 조금씩 움직이다, 테두리를 두르다, 최고급
+
+**sustain** 지속되다
+
+**expenditire** 지출,소비
+
+**precise** 정밀한
+
+**lithography** 석판 인쇄
+
+*ultraviolet* uv, 자외선의
+
+**stem** 줄기, 막다(저지하다)
+
+**shortage** 부족
+
+2 **acquisiton** 습득, 구입한 것, 인수
+
+**perseverance** 인내심
+
+*avionic* 항공 전자 기기, 공학
+
+*agriculture* 농업
+
+**reassess** 재평가하다
+
+**quibble** (별거 아닌 거에) 옥신각신하다, (특히 사소한) 불만
+
+**diversify** 다양화하다
+
+-------------------------------------------------------------------
