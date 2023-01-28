@@ -1035,5 +1035,388 @@ pc3 = pc2;
 
 -------------------------------------------------------------
 
+### 2023-01-28
+
 ## 4-4
 
+#### 생성자 초기화 리스트, 클래스의 const, static 변수, 레퍼런스 타입을 리턴하는 함수, this 포인터, const 멤버 함수 등
+
+##### 생성자 초기화 리스트
+```c++
+#include <iostream>
+
+class Marine {
+  int hp;                // 마린 체력
+  int coord_x, coord_y;  // 마린 위치
+  int damage;            // 공격력
+  bool is_dead;
+
+ public:
+  Marine();              // 기본 생성자
+  Marine(int x, int y);  // x, y 좌표에 마린 생성
+
+  int attack();                       // 데미지를 리턴한다.
+  void be_attacked(int damage_earn);  // 입는 데미지
+  void move(int x, int y);            // 새로운 위치
+
+  void show_status();  // 상태를 보여준다.
+};
+
+Marine::Marine() : hp(50), coord_x(0), coord_y(0), damage(5), is_dead(false) {} // 생성자 초기화 리스트!
+
+Marine::Marine(int x, int y)
+    : coord_x(x), coord_y(y), hp(50), damage(5), is_dead(false) {}
+
+void Marine::move(int x, int y) {
+  coord_x = x;
+  coord_y = y;
+}
+int Marine::attack() { return damage; }
+void Marine::be_attacked(int damage_earn) {
+  hp -= damage_earn;
+  if (hp <= 0) is_dead = true;
+}
+void Marine::show_status() {
+  std::cout << " *** Marine *** " << std::endl;
+  std::cout << " Location : ( " << coord_x << " , " << coord_y << " ) "
+            << std::endl;
+  std::cout << " HP : " << hp << std::endl;
+}
+
+int main() {
+  Marine marine1(2, 3);
+  Marine marine2(3, 5);
+
+  marine1.show_status();
+  marine2.show_status();
+}
+```
+
+>생성자 대신, 해당 부분처럼 생성자 초기화 리스트로 적을 수 있다.
+
+멤버 초기화 리스트의 일반적인 꼴은 아래와 같습니다.
+
+```c++
+(생성자 이름) : var1(arg1), var2(arg2) {}
+```
+
+여기서 `var` 들은 클래스의 멤버 변수들을 지칭하고, `arg` 는 그 멤버 변수들을 무엇으로 초기화 할 지 지칭하는 역할을 합니다.
+
+>한 가지 흥미로운 점은 `var1` 과 `arg1` 의 이름이 같아도 되는데, 실제로 아래의 예제는
+
+```c++
+Marine::Marine(int coord_x, int coord_y)
+    : coord_x(coord_x), coord_y(coord_y), hp(50), damage(5), is_dead(false) {}
+```
+
+정상적으로 작동합니다. 왜냐하면 `coord_x ( coord_x )` 에서 바깥쪽의 `coord_x` 는 무조건 멤버 변수를 지칭하게 되는데, 이 경우 `coord_x` 를 지칭하는 것이고, 괄호 안의 `coord_x` 는 원칙상 `Marine` 이 인자로 받은 `coord_x` 를 우선적으로 지칭하는 것이기 때문입니다.
+
+따라서 실제로, 인자로 받은 `coord_x` 가 클래스의 멤버 변수 `coord_x` 를 초기화 하게 됩니다. 아래는 당연한 얘기 겠지만
+```c++
+Marine::Marine(int coord_x, int coord_y) {
+  coord_x = coord_x;
+  coord_y = coord_y;
+  hp = 50;
+  damage = 5;
+  is_dead = false;
+}
+```
+
+컴파일러가 두 `coord_x` 모두 인자로 받은 `coord_x` 로 구분해서 오류가 나겠지요.
+
+> 초기화 리스트의 장점: 생성과 초기화를 동시에 진행할 수 있게 된다!
+
+초기화 리스트는 `int a=3;` 같은거고, 그냥 생성자는 `int a; a=3;` 같은거다.
+
+딱 보아도 후자가 조금 더 하는 작업이 많게 됩니다. 따라서 초기화 리스트를 사용하는 것이조금 더 효율적인 작업이라는 사실을 알 수 있지요. 그 뿐만 아니라, 우리 경험상 반드시 '생성과 동시에 초기화 되어야 하는 것들' 이 몇 가지 있었습니다. 대표적으로 레퍼런스와 상수가 있지요.
+
+앞서 배운 바에 따르면 상수와 레퍼런스들은 모두 생성과 동시에 초기화가 되어야 합니다.
+
+>모두 컴파일 오류가 나겠지요. 따라서 만약에 클래스 내부에 레퍼런스 변수나 상수를 넣고 싶다면 이들을 생성자에서 무조건 !!!초기화 리스트!!!를 사용해서 초기화 시켜주어야만 합니다. 
+
+```c++
+Marine::Marine(int x, int y, int default_damage)
+    : coord_x(x),
+      coord_y(y),
+      hp(50),
+      default_damage(default_damage),
+      is_dead(false) {}
+```
+>위처럼, 상수를 초기화하는것도, 처음 초기화할때 유동적으로 입력받아서 할 수 있다.
+
+#### 생성된 총 `Marine` 수 세기 (static 변수)
+
+ C++ 에서는 위와 같은 문제를 간단하게 해결 할 수 있는 기능을 제공하고 있습니다. 마치 전역 변수 같지만 클래스 하나에만 종속되는 변수인 것인데요, 바로 `static` 멤버 변수입니다.
+
+>어떤 클래스의 `static` 멤버 변수의 경우, 멤버 변수들 처럼, 객체가 소멸될 때 소멸되는 것이 아닌, 프로그램이 종료될 때 소멸되는 것입니다.
+>
+>또한, 이 `static` 멤버 변수의 경우, 클래스의 모든 객체들이 '공유' 하는 변수로써 각 객체 별로 따로 존재하는 멤버 변수들과는 달리 모든 객체들이 '하나의' `static` 멤버 변수를 사용하게 됩니다. 그럼 바로 아래의 예제를 살펴 보도록 합시다.
+
+해당 변수를 활용하여, 생성자에서는 ++, 소멸자에서는 --하는식으로 작동시키면, marine의 수를 셀 수 있다.
+
+```c++
+class Marine {
+  static int total_marine_num = 0;
+```
+
+와 같이 초기화 해도 되지 않냐고 묻는 경우가 있는데, 멤버 변수들을 위와 같이 초기화 시키지 못하는 것처럼 `static` 변수 역시 클래스 내부에서 위와 같이 초기화 하는 것은 불가능 합니다. 위와 같은 꼴이 되는유일한 경우는 `const static` 변수일 때만 가능한데, 실제로
+```c++
+class Marine {
+  const static int x = 0;
+```
+으로 쓸 수 있습니다.
+
+
+#### static 함수
+
+그런데 클래스 안에 `static` 변수 만 만들 수 있는 것이 아닙니다. 놀랍게도 클래스 안에는 `static` 함수도 정의할 수 있는데, `static` 변수가 어떠한 객체에 종속되는 것이 아니라, 그냥 클래스 자체에 딱 1 개 존재하는 것인 것 처럼, `static` 함수 역시 어떤 특정 객체에 종속되는 것이 아니라 클래스 전체에 딱 1 개 존재하는 함수입니다.
+
+즉, `static` 이 아닌 멤버 함수들의 경우 객체를 만들어야지만 각 멤버 함수들을 호출할 수 있지만 `static` 함수의 경우, 객체가 없어도 그냥 클래스 자체에서 호출할 수 있게 됩니다. 그럼, 아래 예제를 살펴볼까요.
+
+```c++
+// static 함수
+#include <iostream>
+
+class Marine {
+  static int total_marine_num;
+  const static int i = 0;
+
+  int hp;                // 마린 체력
+  int coord_x, coord_y;  // 마린 위치
+  bool is_dead;
+
+  const int default_damage;  // 기본 공격력
+
+ public:
+  Marine();              // 기본 생성자
+  Marine(int x, int y);  // x, y 좌표에 마린 생성
+  Marine(int x, int y, int default_damage);
+
+  int attack();                       // 데미지를 리턴한다.
+  void be_attacked(int damage_earn);  // 입는 데미지
+  void move(int x, int y);            // 새로운 위치
+
+  void show_status();  // 상태를 보여준다.
+  static void show_total_marine();
+  ~Marine() { total_marine_num--; }
+};
+int Marine::total_marine_num = 0;
+void Marine::show_total_marine() {
+  std::cout << "전체 마린 수 : " << total_marine_num << std::endl;
+}
+Marine::Marine()
+    : hp(50), coord_x(0), coord_y(0), default_damage(5), is_dead(false) {
+  total_marine_num++;
+}
+
+Marine::Marine(int x, int y)
+    : coord_x(x), coord_y(y), hp(50), default_damage(5), is_dead(false) {
+  total_marine_num++;
+}
+
+Marine::Marine(int x, int y, int default_damage)
+    : coord_x(x),
+      coord_y(y),
+      hp(50),
+      default_damage(default_damage),
+      is_dead(false) {
+  total_marine_num++;
+}
+
+void Marine::move(int x, int y) {
+  coord_x = x;
+  coord_y = y;
+}
+int Marine::attack() { return default_damage; }
+void Marine::be_attacked(int damage_earn) {
+  hp -= damage_earn;
+  if (hp <= 0) is_dead = true;
+}
+void Marine::show_status() {
+  std::cout << " *** Marine *** " << std::endl;
+  std::cout << " Location : ( " << coord_x << " , " << coord_y << " ) "
+            << std::endl;
+  std::cout << " HP : " << hp << std::endl;
+  std::cout << " 현재 총 마린 수 : " << total_marine_num << std::endl;
+}
+
+void create_marine() {
+  Marine marine3(10, 10, 4);
+  Marine::show_total_marine();
+}
+int main() {
+  Marine marine1(2, 3, 5);
+  Marine::show_total_marine();
+
+  Marine marine2(3, 5, 10);
+  Marine::show_total_marine();
+
+  create_marine();
+
+  std::cout << std::endl << "마린 1 이 마린 2 를 공격! " << std::endl;
+  marine2.be_attacked(marine1.attack());
+
+  marine1.show_status();
+  marine2.show_status();
+}
+```
+
+`static` 함수는 앞에서 이야기 한 것과 같이, 어떤 객체에 종속되는 것이 아니라 클래스에 종속되는 것으로, 따라서 이를 호출하는 방법도 `(객체).(멤버 함수)` 가 아니라, `(클래스)::(static 함수)` 형식으로 호출하게 됩니다. 왜냐하면 어떠한 객체도 이 함수를 소유하고 있지 않기 때문이죠. 그러하기에, `static` 함수 내에서는 클래스의 `static` 변수 만을 이용할 수 밖에 없습니다.
+
+##### this 포인터
+
+this는 객체 자신을 가르키는 포인터 역할을 함. 모든 멤버 함수 내(static 함수 제외)에 자동으로 정의되어 있는 키워드임.
+
+
+##### 레퍼런스 리턴 함수
+
+```c++
+// 레퍼런스를 리턴하는 함수
+#include <iostream>
+
+class A {
+  int x;
+
+ public:
+  A(int c) : x(c) {}
+
+  int& access_x() { return x; }
+  int get_x() { return x; }
+  void show_x() { std::cout << x << std::endl; }
+};
+
+int main() {
+  A a(5);
+  a.show_x();
+
+  int& c = a.access_x(); // 참조자 됨
+  c = 4; // a.x = 4가 된 셈임.
+  a.show_x();
+
+  int d = a.access_x(); // 단순 복사(x의 임시 별명을 복사)
+  d = 3; // 단순히 d = 3임. 
+  a.show_x();
+
+  // 아래는 오류
+  // int& e = a.get_x();
+  // e = 2; // 함수가 끝나면 사라지는 임시 변수 x를 참조자에 대입하려고 하니까 오류 발생.
+  // a.show_x();
+
+  int f = a.get_x(); // 단순 복사(x로부터 복사)
+  f = 1;
+  a.show_x();
+}
+```
+
+오류가 나는 이유.
+그 이유는 레퍼런스가 아닌 타입을 리턴하는 경우는 '값' 의 복사가 이루어지기 때문에 임시 객체가 생성되는데, 임시객체의 레퍼런스를 가질 수 없기 때문입니다. (임시객체는 문장이 끝나게 되면 소멸됩니다) 이 과정을 그림으로 그려보면 아래와 같습니다.
+
+![이미지](https://modoocode.com/img/272F193851A18E5A29B569.webp)
+
+`get_x` 의 리턴으로 인해 임시로 '복사생성' 된 `int` 는 `a.get_x()` 부분을 대체하며 위 그림의 경우
+
+```c++
+int &e = x';
+```
+과 같이 되는데, x' 은 문장이 끝날 때 자동으로 소멸되는 임시 객체 이기 때문에 레퍼런스를 만들 수 없습니다. 설사 레퍼런스를 만들었다고 해도 '이미 존재하지 않는 것에 대한 별명' 이 되므로 이 레퍼런스에 접근하는 것은 오류이겠지요.
+
+그럼 이제 다시 예전의 `Marine` 예제로 돌아가보도록 합시다.
+
+```c++
+Marine& Marine::be_attacked(int damage_earn) {
+  this->hp -= damage_earn;
+  if (this->hp <= 0) this->is_dead = true;
+
+  return *this;
+}
+```
+
+위 경우 `be_attacked` 함수는 `Marine&` 타입을 리턴하게 되는데, 위 경우, `*this` 를 리턴하게 됩니다. 앞에서도 말했지만 `this` 가 지금 이 함수를 호출한 객체를 가리키는 것은 기억 하시죠? 그렇기 때문에 `*this` 는 그 객체 자신을 의미하게 됩니다. 따라서,
+
+```c++
+marine2.be_attacked(marine1.attack()).be_attacked(marine1.attack());
+```
+
+문장의 경우, 먼저 `marine2.be_attacked(marine1.attack())` 이 먼저 실행되고 리턴되는 것이 다시 `marine2` 이므로 그 다음에 또 한 번`marine2.be_attacked(marine1.attack`()) 가 실행된다고 생각할 수 있습니다.
+
+간단하죠? 만일, `be_attacked` 함수의 리턴 타입이 `Marine&` 이 아니라 그냥 `Marine` 이라고 해봅시다. 즉, 만일 `be_attacked` 함수가 아래와 같이 바뀌었다고 가정한다면
+
+```c++
+MarineMarine::be_attacked(int damage_earn) {
+  this->hp -= damage_earn;
+  if (this->hp <= 0) this->is_dead = true;
+
+  return *this;
+}
+```
+
+다시 같은 문장을 실행해보면 `marine2` 는 실제로 두 번 공격이 아닌 1 번 공격으로 감소한 `HP` 만을 보입니다. (즉 40 이 아닌 45 로 나옴) 이는 앞에서도 설명했듯이 리턴타입이 `Marine` 이므로, 임시 객체 `Marine` 을 생성해서, `*this` 의 내용으로 복사가 되고 (즉, `Marine` 의 복사 생성자 호출) 이 임시 객체에 대한 `be_attacked` 함수가 호출되게 되는 것입니다.
+
+따라서 결국 두 번째 `be_attacked` 는 `marine2` 가 아닌 엉뚱한 임시 객체에 대해 호출되는 것이므로 결국 `marine2` 는 `marine1` 의 공격을 1 번만 받게 됩니다.
+
+>참고. 만약 Marine& be_attacked 형식을 사용하지 않으면, 위처럼 연속으로 함수를 사용하는것 자체가 불가능함.
+
+
+##### const 함수
+
+`(기존의 함수의 정의) const;` 와 같은 방식으로 정의한다.
+
+예 : 
+```c++
+int Marine::attack() const { return default_damage; }
+```
+
+그렇게 하였으면 위 `attack` 함수는 '상수 멤버 함수' 로 정의된 것입니다. 우리는 상수 함수로 이 함수를 정의함으로써, 이 함수는 다른 변수의 값을 바꾸지 않는 함수라고 다른 프로그래머에게 명시 시킬 수 있습니다. 
+
+>당연하게도, 상수 함수 내에서는 객체들의 '읽기' 만이 수행되며, 상수 함수 내에서 호출 할 수 있는 함수로는 다른 상수 함수 밖에 없습니다.
+
+사실 많은 경우 클래스를 설계할 때, 멤버 변수들은 모두 `private` 에 넣고, 이 변수들의 값에 접근하는 방법으로 `get_x` 함수 처럼 함수를 `public` 에 넣어 이 함수를 이용해값을 리턴받는 형식을 많이 사용합니다. 이렇게 하면 멤버 변수들을 `private` 에 넣음으로써 함부로 변수에 접근하는 것을 막고, 또 그 값은 자유롭게 구할 수 있게 됩니다.
+
+##### 생각해보기 문제
+
+```c++
+#include <iostream>
+
+class A {
+  int x;
+
+ public:
+  A(int c) : x(c) {}
+  A(const A& a) {
+    x = a.x;
+    std::cout << "복사 생성" << std::endl;
+  }
+};
+
+class B {
+  A a;
+
+ public:
+  B(int c) : a(c) {}
+  B(const B& b) : a(b.a) {}
+  A get_A() {
+    A temp(a);
+    return temp;
+  }
+};
+
+int main() {
+  B b(10);
+
+  std::cout << "---------" << std::endl;
+  A a1 = b.get_A();
+}
+```
+> 해당 코드에서 "복사 생성"은 몇번 출력되는가?
+
+(난이도 : 上 -사실 이 글을 잘 읽었더라면 틀리게 답하는 것이 맞습니다. 컴파일러는 불필요한 복사를 막기 위해 _copy elision_ 이라는 기술을 사용하고 있는데, 이에 관해서는 추후에 이야기 하도록 하겠습니다. 정 궁금하신 분들은 [http://en.wikipedia.org/wiki/Copy_elision](http://en.wikipedia.org/wiki/Copy_elision) 를 읽어보시기 바랍니다.)
+
+정답 : 3번. A temp(a)에서 한번, return temp에서 한번, A a1 = b.get_A()에서 복사 생성자로 바로 들어가면서 한번.
+
+나는 return temp는 놓쳤었다. 임시 객체에 대한 내용 숙지할 것!
+
+-------------------------------------------------------------
+
+## 4-5
+
+문자열 클래스 만들기 실습!

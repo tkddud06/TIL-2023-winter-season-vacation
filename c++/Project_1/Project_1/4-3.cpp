@@ -141,8 +141,8 @@ void string::print()
 
 int main()
 {
-	string s("hellox");
-	string c(" nice meet yosssu");
+	string s("s");
+	string c("");
 	string b("reseting");
 	s.print();
 	s.add_string(c);
