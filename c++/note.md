@@ -1425,7 +1425,9 @@ int main() {
 
 ### 2023-01-29
 
-실습 도중, `_crtlsvalidheappointer(block)`  오류가 발생했었음. 하지만, 해결함. 이유는 정확히 아직 모르겠지만, 함수 인자를 받을 때, `const String other_string`으로 받은 것이 문제같음. `const String& other_string`으로 받자, 문제가 해결됨. 전자로 적으면, 함수가 끝날 때, other_string이 삭제될 때, 소멸자가 작동하는데, b가 초기화됨. 복사된게 초기화되는게 아니고, 왜 원래 것에 영향을 주지? #재확인 
+실습 도중, `_crtlsvalidheappointer(block)`  오류가 발생했었음. 하지만, 해결함. 이유는 정확히 아직 모르겠지만, 함수 인자를 받을 때, `const String other_string`으로 받은 것이 문제같음. `const String& other_string`으로 받자, 문제가 해결됨. #해결 
+
+다만, 전자로 적으면, 함수가 끝날 때, other_string이 삭제될 때, 소멸자가 작동하는데, b가 초기화됨. 복사된게 초기화되는게 아니고, 왜 원래 것에 영향을 주지? #재확인 
 
 
 기존 [C 언어에서는 문자열을 나타내기 위해 널 종료 문자열(Null-terstd::minating string)](https://modoocode.com/29)이라는 개념을 도입해서 문자열 끝에 `NULL` 문자를 붙여 문자열을 나타내는 방식을 사용하였습니다.
@@ -1872,4 +1874,6 @@ class Server {
 위 처럼 말이지요. 이렇듯, `mutable` 키워드는 `const` 함수 안에서 해당 멤버 변수에 `const` 가 아닌 작업을 할 수 있게 만들어줍니다.
 
 -------------------------------------------------------------
+
+### 2023-02-06
 
