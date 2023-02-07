@@ -35,7 +35,7 @@ public:
 
 	size_t strlen() const; // 문자열 길이를 구하는 함수
 
-	String& add_str(const String& other_string); // 문자열 붙이기
+	String add_str(const String& other_string);// 문자열 붙이기
 
 	bool involve_check(const String& other_string); // 문자열 포함여부 확인하기
 
@@ -45,6 +45,7 @@ public:
 
 	void print_str() const; // 문자열 출력하기
 
+	String& operator=(const String& other_string);
 
 };
 
@@ -62,7 +63,7 @@ String::String(const char* input_str) // 문자열로부터의 문자열 생성자
 {
 	len = std::strlen(input_str);
 	str = new char[len + 1];
-	// str = input_str; // "const char* 형식의 값을 char 엔터티에 할당할 수 없습니다. 오류 발생. 원래 안됐나?", 원래 안됐나를 떠나서, 이렇게 하면 동적할당한걸 못써먹게되서 하면 안되네.
+	// # str = input_str; // "const char* 형식의 값을 char 엔터티에 할당할 수 없습니다. 오류 발생. 원래 안됐나?", 원래 안됐나를 떠나서, 이렇게 하면 동적할당한걸 못써먹게되서 하면 안되네.
 	for (int i = 0; i < len; i++)
 	{
 		str[i] = input_str[i];
@@ -80,6 +81,20 @@ String::String(const String& string) : len(string.len)
 	str[len] = '\0';
 }
 
+String& String::operator=(const String& other_string)
+{
+	len = other_string.len;
+	str = new char[len + 1];
+	for (int i = 0; i < len; i++)
+	{
+		str[i] = other_string.str[i];
+	}
+	str[len] = '\0';
+
+	return *this;
+}
+
+
 String::~String() // 소멸자
 {
 	delete[] str;
@@ -91,24 +106,32 @@ size_t String::strlen() const// 문자열 길이를 구하는 함수
 }
 
 
-String& String::add_str(const String& other_string) // 문자열 붙이기
+String String::add_str(const String& other_string)// 문자열 붙이기
 {
 	size_t other_string_len = other_string.strlen();
 	size_t original_string_len = len;
-	len = other_string_len + original_string_len;
-	char* new_str = new char[len + 1];
+
+	String retustring(original_string_len + other_string_len, '\0');
+
 	for (int i = 0; i < original_string_len; i++)
 	{
-		new_str[i] = str[i];
+		retustring.str[i] = str[i];
 	}
+	retustring.str[original_string_len] = '\0';
+
+	delete[] str;
+
 	for (int i = 0; i < other_string_len; i++)
 	{
-		new_str[original_string_len + i] = other_string.str[i]; // !other_string.str로 바로 접근이 돼? 아, 멤버 함수를 타고 접근하는건 되는게 맞지.
+		retustring.str[original_string_len + i] = other_string.str[i]; // # !other_string.str로 바로 접근이 돼? 아, 멤버 함수를 타고 접근하는건 되는게 맞지.
 	}
-	new_str[len] = '\0';
-	delete[] str;
-	str = new_str;
-	return *this;
+	retustring.str[retustring.len] = '\0';
+
+	int temp = 1;
+	return retustring;
+	
+
+
 }
 
 bool String::involve_check(const String& other_string) // 문자열 포함여부 확인하기
@@ -231,20 +254,21 @@ void String::print_str() const // 문자열 출력하기
 	std::cout << str << std::endl;
 }
 
+
 int main()
 {
 	String a("nice");
 	String b("hello");
 	String p(10, 'c');
-	String z("heflo");
-	a.add_str(b);
-	bool d = a.same_check(b);
-	bool s = a.involve_check(b);
-	size_t c = a.strlen();
-	int f = a.versus(b);
-	a.print_str();
-	b.print_str();
-	bool m = b.same_check(z);
-	int q = b.versus(z);
+	// String z("heflo");
+	String k = a.add_str(b); // # 만약 레퍼런스가 아닌 일반 리턴을 한 상태에서, 첫번째만 반영이 되는 이유는 첫번째는 a에 직접 함수를 박은거니까 제대로 값이 저장되지만, 두번째는 a.add_str(b)의 리턴값에 박은것이니 값이 저장되지 않고 명령행의 종료와 함께 사라지는것이지. 그러면, 대입이 안되는 이유는 뭐냐? 함수의 종료로 사라진 것을 대입하려 해봤자, 대입이 정상적으로 안 되지. 근데 대입까지는 되고 사라져야되는거 아닌가? 잘 모르겠다. error-test에서 좀 테스트좀 해보고 했음. 참고.
+	// bool d = a.same_check(b);
+	// bool s = a.involve_check(b);
+	// size_t c = a.strlen();
+	// int f = a.versus(b);
+	// a.print_str();
+	// b.print_str();
+	// bool m = b.same_check(z);
+	// int q = b.versus(z);
 	return 0;
 }

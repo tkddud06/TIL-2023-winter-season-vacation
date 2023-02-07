@@ -27,7 +27,10 @@
     <ClCompile Include="4-4.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="4.5.cpp">
+    <ClCompile Include="4-5.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="errortest%28about 4-5%29.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
