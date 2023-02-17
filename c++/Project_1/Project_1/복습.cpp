@@ -13,6 +13,7 @@ private:
 
 	friend String operator*(const String& b, int n);
 
+	friend std::ostream& operator<<(std::ostream& os, String s);
 
 public:
 
@@ -112,15 +113,28 @@ void String::print()
 	std::cout << std::endl;
 }
 
+std::ostream& operator<<(std::ostream& os, String s) {
+	char* temp = new char[s.length + 1];
+	for (int i = 0; i < s.length; i++)
+	{
+		temp[i] = s.str[i];
+	}
+	temp[s.length] = '\0';
+	os << temp;
+	delete[] temp;
+
+	return os;
+}
+
 int main()
 {
-	String a = "hello";
+	String a = "hell";
 
 	a.print();
 
 	a = 3 * a;
 
-	a.print();
+	std::cout << a;
 
 	return 0;
 }
