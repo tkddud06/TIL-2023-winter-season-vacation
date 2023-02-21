@@ -1066,7 +1066,7 @@
 
 **nationwide** 전국적인
 
-[유튜브 영상]https://www.youtube.com/watch?v=7qNOtgrIjO4
+[유튜브 영상](https://www.youtube.com/watch?v=7qNOtgrIjO4)
 
 **intend** 의도하다, 의미하다
 
@@ -1075,3 +1075,36 @@
 **ridiculous** 복잡한
 
 --------------------------------------------------------
+
+## 2023-02-21
+
+[유튜브 영상](https://www.youtube.com/watch?v=vfBa5ba272I)
+
+[유튜브 영상](https://www.youtube.com/watch?v=YTHZLKFblKo)
+
+[유튜브 영상](https://www.youtube.com/watch?v=xBDGgovA1LI)
+
+**retrieval** (제자리에 있지 않는 것을)되찾아 옴, 회수, 검색
+
+**consolidate** (세력 있는 위치, 성공 가능성 등을)굳히다, 통합되다
+
+**neighborhood** 동네, 지역 , 근처, 주민, 이웃
+
+**sewage** 하수도
+
+**metabolic debris** 신진물질 + 쓰레기, 잔해
+
+**inhibit** 막다, 금지하다
+
+*menopause* 폐경기, 갱년기
+
+**redundant** (일거리 부족으로)정리해고당한, 불필요한, 쓸모없는, 여분의
+
+**abundance** 풍부
+
+**redundancy** (인력 과잉에 따른)정리해고, 불필요한 중복
+
+**detour** 우회하다
+
+------------------------------------------------------------
+
