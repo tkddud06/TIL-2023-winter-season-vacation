@@ -22,6 +22,7 @@ public class Example {
 		//2
 		animal1.sound();
 		animal2.sound();
+		// animal1.a = 2; // 에러
 		//
 		
 		
