@@ -7,7 +7,7 @@ class A {
 	public class B {
 		B() { System.out.println("B 객체가 생성됨"); }
 		int field1;
-		static int field2; // 얘는 작동 되는데??
+		// static int field2; // 얘는 작동 되는데??
 		void method1() { }
 		// static void method2() { System.out.println(field2); } // 얘도 되는데?? 왜 주석쳐둔거지
 	}
