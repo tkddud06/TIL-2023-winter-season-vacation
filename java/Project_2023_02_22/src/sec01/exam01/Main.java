@@ -7,7 +7,7 @@ public class Main {
 		//인스턴스 멤버 클래스 객체 생성
 		A.B b = a.new B();
 		b.field1 = 3;
-		A.B.field2 = 2;
+		// A.B.field2 = 2;
 		b.method1();
 		
 		//정적 멤버 클래스 객체 생성

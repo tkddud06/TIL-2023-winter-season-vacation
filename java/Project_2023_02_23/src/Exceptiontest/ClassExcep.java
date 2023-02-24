@@ -1,6 +1,6 @@
 package Exceptiontest;
 
-public class Class {
+public class ClassExcep {
 	public static void main(String[] args) {
 		Dog dog = new Dog();
 		changeDog(dog);
