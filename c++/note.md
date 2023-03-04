@@ -197,7 +197,7 @@ int main() {
 
 다만, 앞에 const를 붙여 버그를 확실히 막아둔 경우 가능.
 
-## 2023-01-21
+#### 2023-01-21
 
 #### 레퍼런스 배열은 만들 수 없다.
 `int a, b; int & arr[2] = {a, b};` 는 불가능한 코드.
@@ -454,7 +454,7 @@ int main() {
 
 ## 4-2
 
-### 2023-01-24
+##### 2023-01-24
 
 #### 함수의 오버로딩, 생성자, 디폴트 생성자
 
@@ -802,9 +802,7 @@ int main() {
 
 연습문제 푸는 중..
 
-와 이거 정말 어렵다....... 나중에 다시 보러 와야겠다.
-
-### 못풀어서 다시 보러 올 부분
+와 이거 정말 어렵다....... 나중에 다시 보러 와야겠다. #재확인
 
 
 ----------------------------------------------------------
@@ -948,4 +946,1670 @@ Marine::~Marine() {
 참고로 우리가 따로 생성자를 정의하지 않더라도 디폴트 생성자가 있었던 것 처럼, 소멸자도 디폴트 소멸자(Default Destructor)가 있습니다. 물론, 디폴트 소멸자 내부에선 아무런 작업도 수행하지 않습니다. 만일 소멸자가 필요 없는 클래스라면 굳이 소멸자를 따로 써줄 필요는 없습니다.
 
 #### 복사 생성자
+
+``` c++
+#include <string.h>
+#include <iostream>
+
+class Photon_Cannon {
+  int hp, shield;
+  int coord_x, coord_y;
+  int damage;
+
+ public:
+  Photon_Cannon(int x, int y);
+  Photon_Cannon(const Photon_Cannon& pc); // 이것!
+
+  void show_status();
+};
+Photon_Cannon::Photon_Cannon(const Photon_Cannon& pc) {
+  std::cout << "복사 생성자 호출 !" << std::endl;
+  hp = pc.hp;
+  shield = pc.shield;
+  coord_x = pc.coord_x;
+  coord_y = pc.coord_y;
+  damage = pc.damage;
+}
+Photon_Cannon::Photon_Cannon(int x, int y) {
+  std::cout << "생성자 호출 !" << std::endl;
+  hp = shield = 100;
+  coord_x = x;
+  coord_y = y;
+  damage = 20;
+}
+void Photon_Cannon::show_status() {
+  std::cout << "Photon Cannon " << std::endl;
+  std::cout << " Location : ( " << coord_x << " , " << coord_y << " ) "
+            << std::endl;
+  std::cout << " HP : " << hp << std::endl;
+}
+int main() {
+  Photon_Cannon pc1(3, 3);
+  Photon_Cannon pc2(pc1);
+  Photon_Cannon pc3 = pc2;
+
+  pc1.show_status();
+  pc2.show_status();
+}
+```
+
+> 복사 생성자의 표준 : `T(const T& a);`
+
+위와 같이 복사 생성자 내부에서 `pc` 의 인스턴스 변수들에 접근해서 객체의 `shield, coord_x, coord_y` 등을 초기화 할 수 는 있지만
+
+ `pc` 의 값 자체는 변경할 수 없다는 이야기 입니다. (왜냐하면 `const` 레퍼런스로 인자를 받았기 때문이죠! 아직도 이해가 안되시면 이전에 [포인터에서 const 의](https://modoocode.com/24) [용법](https://modoocode.com/24)을 떠올려보시기 바랍니다. 정확히 하는 동작이 동일합니다.)
+
+한 가지 중요한 점은 함수 내부에서 받은 인자의 값을 변화시키는 일이 없다면 꼭 `const` 를 붙여주시기 바랍니다. 위와 같이 복사 생성자의 경우도, 인자로 받은 `pc` 의 값을 변경할 일이 없기 때문에 아예 처음부터 `const` 인자로 받았지요. 이렇게 된다면 후에 발생 할 수 있는 실수들을 효과적으로 막을 수 있습니다. (예를 들어 `pc.coord_x = coord_x` 로 쓴다던지)
+
+>인자로 받는 변수의 내용을 함수 내부에서 바꾸지 않는다면 앞에 `const` 를 붙여 주는 것이 바람직합니다.
+
+>`pc3 = pc2` 를 했다면 이는 평범한 대입 연산 이겠지만, 생성 시에 대입하는 연산, 즉 위에 같이 `Photon_Cannon pc3 = pc2;` 한다면, 복사 생성자가 호출되게 되는 것입니다. 이런식으로 `Photon_Cannon pc3 = pc2;` 를 해석함으로써 사용자가 상당히 직관적이고 깔끔한 프로그래밍을 할 수 있습니다.
+
+`Photon_Cannon pc3 = pc2;` 와 
+
+```c++
+Photon_Cannon pc3;
+pc3 = pc2;
+```
+
+는 엄연히 다른 문장입니다. 왜냐하면 위의 것은 말 그대로 복사 생성자가 1 번 호출되는 것이고, 아래 것은 그냥 생성자가 1 번 호출되고, `pc3 = pc2;` 라는 명령이 실행되는 것이지요. 다시 한 번 강조하지만, 복사 생성자는 오직 '생성' 시에 호출된다는 것을 명심하시면 됩니다.
+
+그런데, 사실 디폴트 생성자와 디폴트 소멸자 처럼, C++ 컴파일러는 이미 디폴트 복사 생성자(Default copy constructor) 를 지원해 주고 있습니다. 위 코드에서 복사 생성자를 한 번 지워보시고 실행해보면, 이전과 정확히 동일한 결과가 나타남을 알 수 있습니다. 디폴트 복사 생성자의 경우 기존의 디폴트 생성자와 소멸자가 하는 일이 아무 것도 없었던 것과는 달리 실제로 '복사' 를 해줍니다.
+
+> 디폴트 복사 생성자가 있으며, 그는 디폴트 생성자와 달리 복사를 해주는 역할을 지님.
+
+#### 디폴트 복사 생성자의 한계
+
+클래스가 만약 힙에 메모리가 할당되는 자료를 지닐 때, 복사 과정 후 사용까지는 문제가 없지만, 소멸자를 통해 해당 메모리를 중복초기화 함으로서, 오류가 일어날 수 있음.
+
+그렇기 때문에, 해당 상황에서는 수동으로 복사 생성자를 이용하여 별개의 메모리를 할당시켜주어야 함.
+
+
+>혹시 이 강좌만 보고 뒤의 강좌를 안보시는 분들을 위해 노파심에 이야기 하지만, C++ 에서 문자열을 다룰 때 C 언어 처럼 널 종료 `char` 배열로 다루는 것을 매우 매우 매우 비추합니다. C++ 표준 라이브러리에서 [std::string](https://modoocode.com/237) 이라는 훌륭한 문자열 클래스를 제공하니까, 뒤의 강좌들도 꼭 읽어서 사용법을 숙지하시기 바랍니다.
+
+라는 참고사항이 있었다. 나는 계속 공부할 것이니, 우선 넘어감
+
+### 2023-01-27 
+
+4-3 연습문제는 풀었지만, C6386 주의가 나옴. 자세히 알아볼 필요 있음. #재확인 #5 이슈
+
+-------------------------------------------------------------
+
+### 2023-01-28
+
+## 4-4
+
+#### 생성자 초기화 리스트, 클래스의 const, static 변수, 레퍼런스 타입을 리턴하는 함수, this 포인터, const 멤버 함수 등
+
+#### 생성자 초기화 리스트
+```c++
+#include <iostream>
+
+class Marine {
+  int hp;                // 마린 체력
+  int coord_x, coord_y;  // 마린 위치
+  int damage;            // 공격력
+  bool is_dead;
+
+ public:
+  Marine();              // 기본 생성자
+  Marine(int x, int y);  // x, y 좌표에 마린 생성
+
+  int attack();                       // 데미지를 리턴한다.
+  void be_attacked(int damage_earn);  // 입는 데미지
+  void move(int x, int y);            // 새로운 위치
+
+  void show_status();  // 상태를 보여준다.
+};
+
+Marine::Marine() : hp(50), coord_x(0), coord_y(0), damage(5), is_dead(false) {} // 생성자 초기화 리스트!
+
+Marine::Marine(int x, int y)
+    : coord_x(x), coord_y(y), hp(50), damage(5), is_dead(false) {}
+
+void Marine::move(int x, int y) {
+  coord_x = x;
+  coord_y = y;
+}
+int Marine::attack() { return damage; }
+void Marine::be_attacked(int damage_earn) {
+  hp -= damage_earn;
+  if (hp <= 0) is_dead = true;
+}
+void Marine::show_status() {
+  std::cout << " *** Marine *** " << std::endl;
+  std::cout << " Location : ( " << coord_x << " , " << coord_y << " ) "
+            << std::endl;
+  std::cout << " HP : " << hp << std::endl;
+}
+
+int main() {
+  Marine marine1(2, 3);
+  Marine marine2(3, 5);
+
+  marine1.show_status();
+  marine2.show_status();
+}
+```
+
+>생성자 대신, 해당 부분처럼 생성자 초기화 리스트로 적을 수 있다.
+
+멤버 초기화 리스트의 일반적인 꼴은 아래와 같습니다.
+
+```c++
+(생성자 이름) : var1(arg1), var2(arg2) {}
+```
+
+여기서 `var` 들은 클래스의 멤버 변수들을 지칭하고, `arg` 는 그 멤버 변수들을 무엇으로 초기화 할 지 지칭하는 역할을 합니다.
+
+>한 가지 흥미로운 점은 `var1` 과 `arg1` 의 이름이 같아도 되는데, 실제로 아래의 예제는
+
+```c++
+Marine::Marine(int coord_x, int coord_y)
+    : coord_x(coord_x), coord_y(coord_y), hp(50), damage(5), is_dead(false) {}
+```
+
+정상적으로 작동합니다. 왜냐하면 `coord_x ( coord_x )` 에서 바깥쪽의 `coord_x` 는 무조건 멤버 변수를 지칭하게 되는데, 이 경우 `coord_x` 를 지칭하는 것이고, 괄호 안의 `coord_x` 는 원칙상 `Marine` 이 인자로 받은 `coord_x` 를 우선적으로 지칭하는 것이기 때문입니다.
+
+따라서 실제로, 인자로 받은 `coord_x` 가 클래스의 멤버 변수 `coord_x` 를 초기화 하게 됩니다. 아래는 당연한 얘기 겠지만
+```c++
+Marine::Marine(int coord_x, int coord_y) {
+  coord_x = coord_x;
+  coord_y = coord_y;
+  hp = 50;
+  damage = 5;
+  is_dead = false;
+}
+```
+
+컴파일러가 두 `coord_x` 모두 인자로 받은 `coord_x` 로 구분해서 오류가 나겠지요.
+
+> 초기화 리스트의 장점: 생성과 초기화를 동시에 진행할 수 있게 된다!
+
+초기화 리스트는 `int a=3;` 같은거고, 그냥 생성자는 `int a; a=3;` 같은거다.
+
+딱 보아도 후자가 조금 더 하는 작업이 많게 됩니다. 따라서 초기화 리스트를 사용하는 것이조금 더 효율적인 작업이라는 사실을 알 수 있지요. 그 뿐만 아니라, 우리 경험상 반드시 '생성과 동시에 초기화 되어야 하는 것들' 이 몇 가지 있었습니다. 대표적으로 레퍼런스와 상수가 있지요.
+
+앞서 배운 바에 따르면 상수와 레퍼런스들은 모두 생성과 동시에 초기화가 되어야 합니다.
+
+>모두 컴파일 오류가 나겠지요. 따라서 만약에 클래스 내부에 레퍼런스 변수나 상수를 넣고 싶다면 이들을 생성자에서 무조건 !!!초기화 리스트!!!를 사용해서 초기화 시켜주어야만 합니다. 
+
+```c++
+Marine::Marine(int x, int y, int default_damage)
+    : coord_x(x),
+      coord_y(y),
+      hp(50),
+      default_damage(default_damage),
+      is_dead(false) {}
+```
+>위처럼, 상수를 초기화하는것도, 처음 초기화할때 유동적으로 입력받아서 할 수 있다.
+
+#### 생성된 총 `Marine` 수 세기 (static 변수)
+
+ C++ 에서는 위와 같은 문제를 간단하게 해결 할 수 있는 기능을 제공하고 있습니다. 마치 전역 변수 같지만 클래스 하나에만 종속되는 변수인 것인데요, 바로 `static` 멤버 변수입니다.
+
+>어떤 클래스의 `static` 멤버 변수의 경우, 멤버 변수들 처럼, 객체가 소멸될 때 소멸되는 것이 아닌, 프로그램이 종료될 때 소멸되는 것입니다.
+>
+>또한, 이 `static` 멤버 변수의 경우, 클래스의 모든 객체들이 '공유' 하는 변수로써 각 객체 별로 따로 존재하는 멤버 변수들과는 달리 모든 객체들이 '하나의' `static` 멤버 변수를 사용하게 됩니다. 그럼 바로 아래의 예제를 살펴 보도록 합시다.
+
+해당 변수를 활용하여, 생성자에서는 ++, 소멸자에서는 --하는식으로 작동시키면, marine의 수를 셀 수 있다.
+
+```c++
+class Marine {
+  static int total_marine_num = 0;
+```
+
+와 같이 초기화 해도 되지 않냐고 묻는 경우가 있는데, 멤버 변수들을 위와 같이 초기화 시키지 못하는 것처럼 `static` 변수 역시 클래스 내부에서 위와 같이 초기화 하는 것은 불가능 합니다. 위와 같은 꼴이 되는유일한 경우는 `const static` 변수일 때만 가능한데, 실제로
+```c++
+class Marine {
+  const static int x = 0;
+```
+으로 쓸 수 있습니다.
+
+
+#### static 함수
+
+그런데 클래스 안에 `static` 변수 만 만들 수 있는 것이 아닙니다. 놀랍게도 클래스 안에는 `static` 함수도 정의할 수 있는데, `static` 변수가 어떠한 객체에 종속되는 것이 아니라, 그냥 클래스 자체에 딱 1 개 존재하는 것인 것 처럼, `static` 함수 역시 어떤 특정 객체에 종속되는 것이 아니라 클래스 전체에 딱 1 개 존재하는 함수입니다.
+
+즉, `static` 이 아닌 멤버 함수들의 경우 객체를 만들어야지만 각 멤버 함수들을 호출할 수 있지만 `static` 함수의 경우, 객체가 없어도 그냥 클래스 자체에서 호출할 수 있게 됩니다. 그럼, 아래 예제를 살펴볼까요.
+
+```c++
+// static 함수
+#include <iostream>
+
+class Marine {
+  static int total_marine_num;
+  const static int i = 0;
+
+  int hp;                // 마린 체력
+  int coord_x, coord_y;  // 마린 위치
+  bool is_dead;
+
+  const int default_damage;  // 기본 공격력
+
+ public:
+  Marine();              // 기본 생성자
+  Marine(int x, int y);  // x, y 좌표에 마린 생성
+  Marine(int x, int y, int default_damage);
+
+  int attack();                       // 데미지를 리턴한다.
+  void be_attacked(int damage_earn);  // 입는 데미지
+  void move(int x, int y);            // 새로운 위치
+
+  void show_status();  // 상태를 보여준다.
+  static void show_total_marine();
+  ~Marine() { total_marine_num--; }
+};
+int Marine::total_marine_num = 0;
+void Marine::show_total_marine() {
+  std::cout << "전체 마린 수 : " << total_marine_num << std::endl;
+}
+Marine::Marine()
+    : hp(50), coord_x(0), coord_y(0), default_damage(5), is_dead(false) {
+  total_marine_num++;
+}
+
+Marine::Marine(int x, int y)
+    : coord_x(x), coord_y(y), hp(50), default_damage(5), is_dead(false) {
+  total_marine_num++;
+}
+
+Marine::Marine(int x, int y, int default_damage)
+    : coord_x(x),
+      coord_y(y),
+      hp(50),
+      default_damage(default_damage),
+      is_dead(false) {
+  total_marine_num++;
+}
+
+void Marine::move(int x, int y) {
+  coord_x = x;
+  coord_y = y;
+}
+int Marine::attack() { return default_damage; }
+void Marine::be_attacked(int damage_earn) {
+  hp -= damage_earn;
+  if (hp <= 0) is_dead = true;
+}
+void Marine::show_status() {
+  std::cout << " *** Marine *** " << std::endl;
+  std::cout << " Location : ( " << coord_x << " , " << coord_y << " ) "
+            << std::endl;
+  std::cout << " HP : " << hp << std::endl;
+  std::cout << " 현재 총 마린 수 : " << total_marine_num << std::endl;
+}
+
+void create_marine() {
+  Marine marine3(10, 10, 4);
+  Marine::show_total_marine();
+}
+int main() {
+  Marine marine1(2, 3, 5);
+  Marine::show_total_marine();
+
+  Marine marine2(3, 5, 10);
+  Marine::show_total_marine();
+
+  create_marine();
+
+  std::cout << std::endl << "마린 1 이 마린 2 를 공격! " << std::endl;
+  marine2.be_attacked(marine1.attack());
+
+  marine1.show_status();
+  marine2.show_status();
+}
+```
+
+`static` 함수는 앞에서 이야기 한 것과 같이, 어떤 객체에 종속되는 것이 아니라 클래스에 종속되는 것으로, 따라서 이를 호출하는 방법도 `(객체).(멤버 함수)` 가 아니라, `(클래스)::(static 함수)` 형식으로 호출하게 됩니다. 왜냐하면 어떠한 객체도 이 함수를 소유하고 있지 않기 때문이죠. 그러하기에, `static` 함수 내에서는 클래스의 `static` 변수 만을 이용할 수 밖에 없습니다.
+
+#### this 포인터
+
+this는 객체 자신을 가르키는 포인터 역할을 함. 모든 멤버 함수 내(static 함수 제외)에 자동으로 정의되어 있는 키워드임.
+
+
+#### 레퍼런스 리턴 함수
+
+```c++
+// 레퍼런스를 리턴하는 함수
+#include <iostream>
+
+class A {
+  int x;
+
+ public:
+  A(int c) : x(c) {}
+
+  int& access_x() { return x; }
+  int get_x() { return x; }
+  void show_x() { std::cout << x << std::endl; }
+};
+
+int main() {
+  A a(5);
+  a.show_x();
+
+  int& c = a.access_x(); // 참조자 됨
+  c = 4; // a.x = 4가 된 셈임.
+  a.show_x();
+
+  int d = a.access_x(); // 단순 복사(x의 임시 별명을 복사)
+  d = 3; // 단순히 d = 3임. 
+  a.show_x();
+
+  // 아래는 오류
+  // int& e = a.get_x();
+  // e = 2; // 함수가 끝나면 사라지는 임시 변수 x를 참조자에 대입하려고 하니까 오류 발생.
+  // a.show_x();
+
+  int f = a.get_x(); // 단순 복사(x로부터 복사)
+  f = 1;
+  a.show_x();
+}
+```
+
+오류가 나는 이유.
+그 이유는 레퍼런스가 아닌 타입을 리턴하는 경우는 '값' 의 복사가 이루어지기 때문에 임시 객체가 생성되는데, 임시객체의 레퍼런스를 가질 수 없기 때문입니다. (임시객체는 문장이 끝나게 되면 소멸됩니다) 이 과정을 그림으로 그려보면 아래와 같습니다.
+
+![이미지](https://modoocode.com/img/272F193851A18E5A29B569.webp)
+
+`get_x` 의 리턴으로 인해 임시로 '복사생성' 된 `int` 는 `a.get_x()` 부분을 대체하며 위 그림의 경우
+
+```c++
+int &e = x';
+```
+과 같이 되는데, x' 은 문장이 끝날 때 자동으로 소멸되는 임시 객체 이기 때문에 레퍼런스를 만들 수 없습니다. 설사 레퍼런스를 만들었다고 해도 '이미 존재하지 않는 것에 대한 별명' 이 되므로 이 레퍼런스에 접근하는 것은 오류이겠지요.
+
+아무튼 이러한 이유로 `int` 를 리턴하는 `a.get_x` 에 대해서는 레퍼런스를 만들 수 없습니다. (정확한 설명을 하자면 `int&` 는 좌측값에 대한 레퍼런스 이고, `a.get_x()` 는 우측값 이기 때문에 레퍼런스를 만들 수 없습니다. 좌측값, 우측값 내용은 나중에 더 자세히 다루겠지만 [궁금하신 분들은 이 글을 읽어보세요](https://modoocode.com/189)`!)` #재확인 
+
+그럼 이제 다시 예전의 `Marine` 예제로 돌아가보도록 합시다.
+
+```c++
+Marine& Marine::be_attacked(int damage_earn) {
+  this->hp -= damage_earn;
+  if (this->hp <= 0) this->is_dead = true;
+
+  return *this;
+}
+```
+
+위 경우 `be_attacked` 함수는 `Marine&` 타입을 리턴하게 되는데, 위 경우, `*this` 를 리턴하게 됩니다. 앞에서도 말했지만 `this` 가 지금 이 함수를 호출한 객체를 가리키는 것은 기억 하시죠? 그렇기 때문에 `*this` 는 그 객체 자신을 의미하게 됩니다. 따라서,
+
+```c++
+marine2.be_attacked(marine1.attack()).be_attacked(marine1.attack());
+```
+
+문장의 경우, 먼저 `marine2.be_attacked(marine1.attack())` 이 먼저 실행되고 리턴되는 것이 다시 `marine2` 이므로 그 다음에 또 한 번`marine2.be_attacked(marine1.attack`()) 가 실행된다고 생각할 수 있습니다.
+
+간단하죠? 만일, `be_attacked` 함수의 리턴 타입이 `Marine&` 이 아니라 그냥 `Marine` 이라고 해봅시다. 즉, 만일 `be_attacked` 함수가 아래와 같이 바뀌었다고 가정한다면
+
+```c++
+MarineMarine::be_attacked(int damage_earn) {
+  this->hp -= damage_earn;
+  if (this->hp <= 0) this->is_dead = true;
+
+  return *this;
+}
+```
+
+다시 같은 문장을 실행해보면 `marine2` 는 실제로 두 번 공격이 아닌 1 번 공격으로 감소한 `HP` 만을 보입니다. (즉 40 이 아닌 45 로 나옴) 이는 앞에서도 설명했듯이 리턴타입이 `Marine` 이므로, 임시 객체 `Marine` 을 생성해서, `*this` 의 내용으로 복사가 되고 (즉, `Marine` 의 복사 생성자 호출) 이 임시 객체에 대한 `be_attacked` 함수가 호출되게 되는 것입니다.
+
+따라서 결국 두 번째 `be_attacked` 는 `marine2` 가 아닌 엉뚱한 임시 객체에 대해 호출되는 것이므로 결국 `marine2` 는 `marine1` 의 공격을 1 번만 받게 됩니다.
+
+>참고. 만약 Marine& be_attacked 형식을 사용하지 않으면, 위처럼 연속으로 함수를 사용하는것 자체가 불가능함.
+
+
+#### const 함수
+
+`(기존의 함수의 정의) const;` 와 같은 방식으로 정의한다.
+
+예 : 
+```c++
+int Marine::attack() const { return default_damage; }
+```
+
+그렇게 하였으면 위 `attack` 함수는 '상수 멤버 함수' 로 정의된 것입니다. 우리는 상수 함수로 이 함수를 정의함으로써, 이 함수는 다른 변수의 값을 바꾸지 않는 함수라고 다른 프로그래머에게 명시 시킬 수 있습니다. 
+
+>당연하게도, 상수 함수 내에서는 객체들의 '읽기' 만이 수행되며, 상수 함수 내에서 호출 할 수 있는 함수로는 다른 상수 함수 밖에 없습니다.
+
+사실 많은 경우 클래스를 설계할 때, 멤버 변수들은 모두 `private` 에 넣고, 이 변수들의 값에 접근하는 방법으로 `get_x` 함수 처럼 함수를 `public` 에 넣어 이 함수를 이용해값을 리턴받는 형식을 많이 사용합니다. 이렇게 하면 멤버 변수들을 `private` 에 넣음으로써 함부로 변수에 접근하는 것을 막고, 또 그 값은 자유롭게 구할 수 있게 됩니다.
+
+#### 생각해보기 문제
+
+```c++
+#include <iostream>
+
+class A {
+  int x;
+
+ public:
+  A(int c) : x(c) {}
+  A(const A& a) {
+    x = a.x;
+    std::cout << "복사 생성" << std::endl;
+  }
+};
+
+class B {
+  A a;
+
+ public:
+  B(int c) : a(c) {}
+  B(const B& b) : a(b.a) {}
+  A get_A() {
+    A temp(a);
+    return temp;
+  }
+};
+
+int main() {
+  B b(10);
+
+  std::cout << "---------" << std::endl;
+  A a1 = b.get_A();
+}
+```
+> 해당 코드에서 "복사 생성"은 몇번 출력되는가?
+
+(난이도 : 上 -사실 이 글을 잘 읽었더라면 틀리게 답하는 것이 맞습니다. 컴파일러는 불필요한 복사를 막기 위해 _copy elision_ 이라는 기술을 사용하고 있는데, 이에 관해서는 추후에 이야기 하도록 하겠습니다. 정 궁금하신 분들은 [http://en.wikipedia.org/wiki/Copy_elision](http://en.wikipedia.org/wiki/Copy_elision) 를 읽어보시기 바랍니다.)
+
+정답 : 3번. A temp(a)에서 한번, return temp에서 한번, A a1 = b.get_A()에서 복사 생성자로 바로 들어가면서 한번.
+
+나는 return temp는 놓쳤었다. 임시 객체에 대한 내용 숙지할 것!
+
+-------------------------------------------------------------
+
+## 4-5
+
+문자열 클래스 만들기 실습!
+
+##### 2023-01-29
+
+실습 도중, `_crtlsvalidheappointer(block)`  오류가 발생했었음. 하지만, 해결함. 이유는 정확히 아직 모르겠지만, 함수 인자를 받을 때, `const String other_string`으로 받은 것이 문제같음. `const String& other_string`으로 받자, 문제가 해결됨. #해결 
+
+다만, 전자로 적으면, 함수가 끝날 때, other_string이 삭제될 때, 소멸자가 작동하는데, b가 초기화됨. 복사된게 초기화되는게 아니고, 왜 원래 것에 영향을 주지? #재확인 
+
+
+기존 [C 언어에서는 문자열을 나타내기 위해 널 종료 문자열(Null-terstd::minating string)](https://modoocode.com/29)이라는 개념을 도입해서 문자열 끝에 `NULL` 문자를 붙여 문자열을 나타내는 방식을 사용하였습니다.
+
+하지만 C 언어 문자열을 사용하는데에는 번거로움이 많았는데, 예를 들어서 만들어진 문자열의 크기를 바꾼다던지, 문자열 뒤에 다른 문자열을 붙인다던지 등의 작업들은 상당히 프로그래머 입장에서는 귀찮을 수 밖에 없습니다. 이와 같은 작업들을 문자열 클래스를 따로 만들어서 클래스 차원에서 지원해주면 상당히 편할 텐데 말이지요. 그래서 우리는 직접 문자열 클래스를 만들고자 합니다.
+
+사실 C++ 에서는 표준 라이브러리로 [string](https://modoocode.com/237) 클래스를 지원하고 있습니다. (실제로 [string](https://modoocode.com/233) 헤더파일을 `include` 하면 사용할 수 있습니다.)
+
+>노파심에 이야기 하지만 C++ 에서는 정말 왠만하면 `char` 배열을 사용하는 것보다 [string](https://modoocode.com/237) 을 사용해서 문자열을 다루는 것을 권정합니다. 뒤에 강좌에서 [string](https://modoocode.com/237) 클래스를 어떻게 사용하는지 자세히 다룹니다.
+
+하지만 이 막강한 [string](https://modoocode.com/237) 클래스를 사용하기 이전에 우리는 직접 `MyString` 이라는 우리 만의 문자열 클래스를 만들고자 합니다.
+
+[블로그 링크, 나와는 좀 다르게 만드니 참고할 것,](https://modoocode.com/198)
+
+```c++
+#include <iostream>
+
+// string.h 는 strlen 때문에 include 했는데, 사실 여러분이 직접 strlen
+// 과 같은 함수를 만들어서 써도 됩니다.
+#include <string.h>
+
+class MyString {
+  char* string_content;  // 문자열 데이터를 가리키는 포인터
+  int string_length;     // 문자열 길이
+  int memory_capacity;   // 현재 할당된 용량
+
+ public:
+  // 문자 하나로 생성
+  MyString(char c);
+
+  // 문자열로 부터 생성
+  MyString(const char* str);
+
+  // 복사 생성자
+  MyString(const MyString& str);
+
+  ~MyString();
+
+  int length() const;
+  int capacity() const;
+  void reserve(int size);
+
+  void print() const;
+  void println() const;
+
+  MyString& assign(const MyString& str);
+  MyString& assign(const char* str);
+
+  char at(int i) const;
+
+  MyString& insert(int loc, const MyString& str);
+  MyString& insert(int loc, const char* str);
+  MyString& insert(int loc, char c);
+
+  MyString& erase(int loc, int num);
+
+  int find(int find_from, const MyString& str) const;
+  int find(int find_from, const char* str) const;
+  int find(int find_from, char c) const;
+
+  int compare(const MyString& str) const;
+};
+
+MyString::MyString(char c) {
+  string_content = new char[1];
+  string_content[0] = c;
+  memory_capacity = 1;
+  string_length = 1;
+}
+MyString::MyString(const char* str) {
+  string_length = strlen(str);
+  memory_capacity = string_length;
+  string_content = new char[string_length];
+
+  for (int i = 0; i != string_length; i++) {
+    string_content[i] = str[i];
+  }
+}
+
+MyString::MyString(const MyString& str) {
+  string_length = str.string_length;
+  memory_capacity = str.string_length;
+  string_content = new char[string_length];
+
+  for (int i = 0; i != string_length; i++) {
+    string_content[i] = str.string_content[i];
+  }
+}
+
+MyString::~MyString() { delete[] string_content; }
+int MyString::length() const { return string_length; }
+
+void MyString::print() const {
+  for (int i = 0; i != string_length; i++) {
+    std::cout << string_content[i];
+  }
+}
+void MyString::println() const {
+  for (int i = 0; i != string_length; i++) {
+    std::cout << string_content[i];
+  }
+
+  std::cout << std::endl;
+}
+
+MyString& MyString::assign(const MyString& str) {
+  if (str.string_length > memory_capacity) {
+    // 그러면 다시 할당을 해줘야만 한다.
+    delete[] string_content;
+
+    string_content = new char[str.string_length];
+    memory_capacity = str.string_length;
+  }
+  for (int i = 0; i != str.string_length; i++) {
+    string_content[i] = str.string_content[i];
+  }
+
+  // 그리고 굳이 str.string_length + 1 ~ string_length 부분은 초기화
+  // 시킬 필요는 없다. 왜냐하면 거기 까지는 읽어들이지 않기 때문이다.
+
+  string_length = str.string_length;
+
+  return *this;
+}
+MyString& MyString::assign(const char* str) {
+  int str_length = strlen(str);
+  if (str_length > memory_capacity) {
+    // 그러면 다시 할당을 해줘야만 한다.
+    delete[] string_content;
+
+    string_content = new char[str_length];
+    memory_capacity = str_length;
+  }
+  for (int i = 0; i != str_length; i++) {
+    string_content[i] = str[i];
+  }
+
+  string_length = str_length;
+
+  return *this;
+}
+int MyString::capacity() const { return memory_capacity; }
+void MyString::reserve(int size) {
+  if (size > memory_capacity) {
+    char* prev_string_content = string_content;
+
+    string_content = new char[size];
+    memory_capacity = size;
+
+    for (int i = 0; i != string_length; i++)
+      string_content[i] = prev_string_content[i];
+
+    delete[] prev_string_content;
+  }
+
+  // 만일 예약하려는 size 가 현재 capacity 보다 작다면
+  // 아무것도 안해도 된다.
+}
+char MyString::at(int i) const {
+  if (i >= string_length || i < 0) {
+    return 0;
+  } else {
+    return string_content[i];
+  }
+}
+MyString& MyString::insert(int loc, const MyString& str) {
+  // 이는 i 의 위치 바로 앞에 문자를 삽입하게 된다. 예를 들어서
+  // abc 라는 문자열에 insert(1, "d") 를 하게 된다면 adbc 가 된다.
+
+  // 범위를 벗어나는 입력에 대해서는 삽입을 수행하지 않는다.
+  if (loc < 0 || loc > string_length) return *this;
+
+  if (string_length + str.string_length > memory_capacity) {
+    // 이제 새롭게 동적으로 할당을 해야 한다.
+
+    if (memory_capacity * 2 > string_length + str.string_length)
+      memory_capacity *= 2;
+    else
+      memory_capacity = string_length + str.string_length;
+
+    char* prev_string_content = string_content;
+    string_content = new char[memory_capacity];
+
+    // 일단 insert 되는 부분 직전까지의 내용을 복사한다.
+    int i;
+    for (i = 0; i < loc; i++) {
+      string_content[i] = prev_string_content[i];
+    }
+
+    // 그리고 새롭에 insert 되는 문자열을 넣는다.
+    for (int j = 0; j != str.string_length; j++) {
+      string_content[i + j] = str.string_content[j];
+    }
+
+    // 이제 다시 원 문자열의 나머지 뒷부분을 복사한다.
+    for (; i < string_length; i++) {
+      string_content[str.string_length + i] = prev_string_content[i];
+    }
+
+    delete[] prev_string_content;
+
+    string_length = string_length + str.string_length;
+    return *this;
+  }
+
+  // 만일 초과하지 않는 경우 굳이 동적할당을 할 필요가 없게 된다.
+  // 효율적으로 insert 하기 위해, 밀리는 부분을 먼저 뒤로 밀어버린다.
+
+  for (int i = string_length - 1; i >= loc; i--) {
+    // 뒤로 밀기. 이 때 원래의 문자열 데이터가 사라지지 않게 함
+    string_content[i + str.string_length] = string_content[i];
+  }
+  // 그리고 insert 되는 문자 다시 집어넣기
+  for (int i = 0; i < str.string_length; i++)
+    string_content[i + loc] = str.string_content[i];
+
+  string_length = string_length + str.string_length;
+  return *this;
+}
+MyString& MyString::insert(int loc, const char* str) {
+  MyString temp(str);
+  return insert(loc, temp);
+}
+MyString& MyString::insert(int loc, char c) {
+  MyString temp(c);
+  return insert(loc, temp);
+}
+
+MyString& MyString::erase(int loc, int num) {
+  // loc 의 앞 부터 시작해서 num 문자를 지운다.
+  if (num < 0 || loc < 0 || loc > string_length) return *this;
+
+  // 지운다는 것은 단순히 뒤의 문자들을 앞으로 끌고 온다고
+  // 생각하면 됩니다.
+
+  for (int i = loc + num; i < string_length; i++) {
+    string_content[i - num] = string_content[i];
+  }
+
+  string_length -= num;
+  return *this;
+}
+int MyString::find(int find_from, const MyString& str) const {
+  int i, j;
+  if (str.string_length == 0) return -1;
+  for (i = find_from; i <= string_length - str.string_length; i++) {
+    for (j = 0; j < str.string_length; j++) {
+      if (string_content[i + j] != str.string_content[j]) break;
+    }
+
+    if (j == str.string_length) return i;
+  }
+
+  return -1;  // 찾지 못했음
+}
+int MyString::find(int find_from, const char* str) const {
+  MyString temp(str);
+  return find(find_from, temp);
+}
+int MyString::find(int find_from, char c) const {
+  MyString temp(c);
+  return find(find_from, temp);
+}
+int MyString::compare(const MyString& str) const {
+  // (*this) - (str) 을 수행해서 그 1, 0, -1 로 그 결과를 리턴한다
+  // 1 은 (*this) 가 사전식으로 더 뒤에 온다는 의미. 0 은 두 문자열
+  // 이 같다는 의미, -1 은 (*this) 가 사전식으로 더 앞에 온다는 의미이다.
+
+  for (int i = 0; i < std::min(string_length, str.string_length); i++) {
+    if (string_content[i] > str.string_content[i])
+      return 1;
+
+    else if (string_content[i] < str.string_content[i])
+      return -1;
+  }
+
+  // 여기 까지 했는데 끝나지 않았다면 앞 부분 까지 모두 똑같은 것이 된다.
+  // 만일 문자열 길이가 같다면 두 문자열은 아예 같은 문자열이 된다.
+
+  if (string_length == str.string_length) return 0;
+
+  // 참고로 abc 와 abcd 의 크기 비교는 abcd 가 더 뒤에 오게 된다.
+  else if (string_length > str.string_length)
+    return 1;
+
+  return -1;
+}
+int main() {
+  MyString str1("abcdef");
+  MyString str2("abcde");
+
+  std::cout << "str1 and str2 compare : " << str1.compare(str2) << std::endl;
+}
+```
+
+이것으로, 여태까지 배운 C++ 에 대한 내용을 종합해서 훌륭한 `MyString` 클래스를 만들었다고 볼 수 있습니다. 우리의 `MyString` 클래스는 다음과 같은 인터페이스를 제공합니다.
+
+-   문자 c 혹은 C 형식 문자열 str 에서 생성할 수 있는 생성자와 복사 생성자
+    
+-   문자열의 길이를 리턴하는 함수(length)
+    
+-   문자열 대입 함수(assign)
+    
+-   문자열 메모리 할당 함수(reserve) 및 현재 할당된 크기를 알아오는 함수(capacity)
+    
+-   특정 위치의 문자를 리턴하는 함수(at)
+    
+-   특정 위치에 특정 문자열을 삽입하는 함수(insert)
+    
+-   특정 위치의 특정 개수의 문자를 지우는 함수(erase)
+    
+-   특정 위치를 시작으로 특정 문자열을 검색하는 함수(find)
+    
+-   두 문자열을 사전식 비교하는 함수(compare)
+    
+
+이 정도면 괜찮은 문자열 클래스라고 볼 수 있지 않나요 ㅎㅎ. 이번 강좌를 통해서 현재 까지 배운 C++ 클래스에 좀더 친숙해 질 수 있는 좋은 경험이 되었으면 합니다. 자, 그럼 이것으로 이번 강좌를 마치도록 하겠습니다.
+
+#### 문제
+
+여러가지 검색 알고리즘(KMP, Boyer - Moore) 들을 이용하는 [find](https://modoocode.com/261) 함수를 만들어보세요. 어떤 알고리즘의 경우 미리 계산된 테이블이 필요할 텐데, 이러한 정보들 역시 `class` 변수로 처리하셔도 됩니다. (난이도 : 上) #재확인 
+
+-------------------------------------------------------------
+
+### 2023-02-05
+
+## 4-6
+
+##### explicit, mutable에 대해 배울 예정
+
+#### explicit
+
+`DoSomethingWithString("abc")`
+
+일단 `DoSomethingWithString` 함수를 살펴보면 인자로 `MyString` 을 받고 있습니다. 하지만 "`abc`" 는 `MyString` 타입이 아니지요. 그런데 C++ 컴파일러는 꽤나 똑똑해서 "`abc`" 를 어떻게 하면 `MyString` 으로 바꿀 수 있는지 생각해봅니다. 그리고 다행이도 `MyString` 의 생성자들 중에서는
+
+```c++
+// 문자열로 부터 생성
+MyString(const char* str);
+```
+
+위와 같이 `const char*` 로 부터 생성하는 것이 있었습니다. 따라서, `DoSomethingWithString("abc")` 는 알아서
+
+`DoSomethingWithString(MyString("abc"))`
+
+로 변환되서 컴파일 됩니다. 위와 같은 변환을 암시적 변환(implicit conversion) 이라고 부릅니다. 하지만 암시적 변환이 언제나 사용자에게 편리한 것은 아닙니다. 때로는 예상치 못한 경우에 암시적 변환이 일어날 수 도 있습니다.
+
+```c++
+DoSomethingWithString(3)
+// 해당 함수 호출은
+
+// capacity 만큼 미리 할당함.
+MyString(int capacity);
+//와 연결될 것이고, 의도치 않은 암시적 변환이 일어날 것.
+
+DoSomethingWithString(MyString(3))
+//로 컴파일 될것.
+//mystring 생성자에, explicit을 사용하면, 이를 막을 수 있음.
+```
+
+컴파일러에서 해당 `MyString` 생성자를 `explicit` 으로 선언한다면 이 생성자를 이용한 암시적 변환을 수행하지 못하게 막을 수 있습니다. 실제 컴파일 오류 메세지를 보아도, `int` 에서 `MyString` 으로 변환할 수 없다고 나옵니다.
+
+`explicit` 은 또한 해당 생성자가 복사 생성자의 형태로도 호출되는 것을 막게 됩니다.
+
+#### mutable
+
+다음으로 살펴볼 키워드로 `mutable` 이 있습니다. 혹시 이전에 배우신 `const` 멤버 함수 기억 하시나요? `const` 함수 내부에서는 멤버 변수들의 값을 바꾸는 것이 불가능 합니다. 하지만, 만약에 멤버 변수를 `mutable` 로 선언하였다면 const 함수에서도 이들 값을 바꿀 수 있습니다.
+
+
+ >그래서 mutable 이 왜 필요한데?
+
+먼저 멤버 함수를 왜 `const` 로 선언하는지 부터 생각해봅시다. 클래스의 멤버 함수들은 이 객체는 이러이러한 일을 할 수 있습니다 라는 의미를 나타내고 있습니다.
+
+그리고 멤버 함수를 `const` 로 선언하는 의미는 이 함수는 객체의 내부 상태에 영향을 주지 않습니다 를 표현하는 방법 입니다. 대표적인 예로 읽기 작업을 수행하는 함수들을 들 수 있습니다.
+
+대부분의 경우 의미상 상수 작업을 하는 경우, 실제로도 상수 작업을 하게 됩니다. 하지만, 실제로 꼭 그렇지만은 않습니다. 예를 들어서 아래와 같은 서버 프로그램을 만든다고 해봅시다.
+
+```c++
+class Server {
+  // .... (생략) ....
+
+  // 이 함수는 데이터베이스에서 user_id 에 해당하는 유저 정보를 읽어서 반환한다.
+  User GetUserInfo(const int user_id) const {
+    // 1. 데이터베이스에 user_id 를 검색
+    Data user_data = Database.find(user_id);
+
+    // 2. 리턴된 정보로 User 객체 생성
+    return User(user_data);
+  }
+};
+```
+
+이 서버에는 `GetUserInfo` 라는 함수가 있는데 입력 받은 `user_id` 로 데이터베이스에서 해댱 유저를 조회해서 그 유저의 정보를 리턴하는 함수 입니다. 당연히도 데이터베이스를 업데이트 하지도 않고, 무언가 수정하는 작업도 당연히 없기 때문에 `const` 함수로 선언되어 있습니다.
+
+그런데 대개 데이터베이스에 요청한 후 받아오는 작업은 꽤나 오래 걸립니다. 그래서 보통 서버들의 경우 메모리에 캐쉬(cache)를 만들어서 자주 요청되는 데이터를 굳이 데이터베이스까지 가서 찾지 않아도 메모리에서 빠르게 조회할 수 있도록 합니다.
+
+물론 캐쉬는 데이터베이스만큼 크지 않기 때문에 일부 유저들 정보 밖에 포함하지 않습니다. 따라서 캐쉬에 해당 유저가 없다면 (이를 캐쉬 미스-cache miss 라고 합니다), 데이터베이스에 직접 요청해야겠지요. 대신 데이터베이스에서 유저 정보를 받으면 캐쉬에 저장해놓아서 다음에 요청할 때는 빠르게 받을 수 있게 됩니다.
+
+보통 한 번 요청된 정보는 계속해서 요청될 확률이 높기때문에 캐쉬에 넣게 됩니다. 물론 캐쉬 크기는 한정적이니까 이전에 오래된 캐쉬부터 지우게됩니다.
+
+이를 구현한다면 아래와 같겠지요.
+
+```c++
+class Server {
+  // .... (생략) ....
+
+  Cache cache; // 캐쉬!
+
+  // 이 함수는 데이터베이스에서 user_id 에 해당하는 유저 정보를 읽어서 반환한다.
+  User GetUserInfo(const int user_id) const {
+    // 1. 캐쉬에서 user_id 를 검색
+    Data user_data = cache.find(user_id);
+
+    // 2. 하지만 캐쉬에 데이터가 없다면 데이터베이스에 요청
+    if (!user_data) {
+      user_data = Database.find(user_id);
+
+      // 그 후 캐쉬에 user_data 등록
+      cache.update(user_id, user_data); // <-- 불가능
+    }
+
+    // 3. 리턴된 정보로 User 객체 생성
+    return User(user_data);
+  }
+};
+```
+
+
+그런데 문제는 `GetUserInfo` 가 `const` 함수라는 점입니다. 따라서
+
+> const 함수의 특징.
+> 요약하자면 const가 뒤에 붙은 함수에는 2가지 기능이 존재한다.
+> -   객체 내부 변수 변경 불가.
+> -   const 함수만 호출 가능.
+
+`cache.update(user_id, user_data);  // <-- 불가능`
+
+위 처럼 캐쉬를 업데이트 하는 작업을 수행할 수 없습니다. 왜냐하면 캐쉬를 업데이트 한다는 것은 케쉬 내부의 정보를 바꿔야 된다는 뜻이기 때문이죠. 따라서 저 `update` 함수는 `const` 함수가 아닐 것입니다.
+
+그렇다고 해서 `GetUserInfo` 에서 `const` 를 떼기도 좀 뭐한것이, 이 함수를 사용하는 사용자의 입장에선 당연히 `const` 로 정의되어야 하는 함수 이기 때문이지요. 따라서 이 경우, `Cache` 를 `mutable` 로 선언해버리면 됩니다.
+
+`mutable Cache cache;  // 캐쉬!`
+
+위 처럼 말이지요. 이렇듯, `mutable` 키워드는 `const` 함수 안에서 해당 멤버 변수에 `const` 가 아닌 작업을 할 수 있게 만들어줍니다.
+
+-------------------------------------------------------------
+
+### 2023-02-07
+
+## 5-1
+
+##### 산술 연산자, 비교 연산자, 대입 연산자 오버로딩
+
+안녕하세요 여러분! 지난 강좌에서 만들었던 `MyString` 을 손 좀 봐주었나요? 아마도 `MyString` 을 이용하여 여러가지 작업을 하면서 다음과 같은 생각을 하셨을 수도 있었을 것입니다.
+
+-   `if(str1.compare(str2) == 0)` 하지 말고 `if(str1 == str2)` 하면 어떨까?
+    
+-   `str1.insert(str1.length(), str2)` 하지 말고 `str1 = str1 + str2;` 하면 어떨까?
+    
+-   `str1[10] = 'c';` 와 같은 것도 할 수 있을까?
+    
+
+물론 C 언어에서는 이러한 것을 상상조차 할 수 없었습니다. `+, -, ==, []` 와 같은 기본 연산자들은 모두 C 언어에 기본적으로 정의되어 있는 데이터 타입(`int, float` 등)에만 사용 가능한 것들 이였기 때문이죠. 이들을 구조체 변수에 사용한다는 것은 불가능하였습니다.
+
+하지만 놀랍게도 C++ 에서는 사용자 정의 연산자를 사용할 수 있습니다. 어떠한 연산자들이 가능하나면, `::` (범위 지정), `.` (멤버 지정), `.*` (멤버 포인터로 멤버 지정) 을 제외한 여러분이 상상하는 모든 연산자를 사용할 수 있다는 것입니다. 대표적으로
+
+-   `+, -, *` 와 같은 산술 연산자
+    
+-   `+=, -=` 와 같은 축약형 연산자
+    
+-   `>=, ==` 와 같은 비교 연산자
+    
+-   `&&`, `||` 와 같은 논리 연산자
+    
+-   `->` 나 `*` 와 같은 멤버 선택 연산자 (여기서 `*` 는 역참조 연산자 입니다. 포인터에서 `*p` 할 때 처럼)
+    
+-   `++, --` 증감 연산자
+    
+-   `[]` (배열 연산자) 와 심지어 `()` 까지 (함수 호출 연산자)
+    
+
+까지 모두 여러분이 직접 만들 수 있습니다.
+
+이 때 이러한 기본 연산자들을 직접 사용자가 정의하는 것을 연산자를 오버로딩(overloading) 한다고 부릅니다. 이전에 같은 이름의 함수를 인자만 다르게 사용하는 것을 '함수를 오버로딩 했다' 라고 불렀던 것 처럼, 기본 연산자를 여러분이 설계한 클래스에 맞게 직접 사용하는 것을 '연산자를 오버로딩 했다' 라고 부릅니다.
+
+> 작성 방법은 다음과 같다.
+> `(리턴 타입) operator(연산자) (연산자가 받는 인자)`
+
+이제, 우리가 `str1 == str2` 라는 명령을 한다면 이는 `str1.operator==(str2)` 로 내부적으로 변환되서 처리됩니다.
+
+```c++
+bool MyString::operator==(MyString& str) {
+  return !compare(str);  // str 과 같으면 compare 에서 0 을 리턴한다.
+}
+// 이처럼 적을 수 있음.
+```
+
+
+복소수 클래스를 예시로 만드는데, 그는 [블로그](https://modoocode.com/202) 직접 참고
+
+#에러해결 `"const char *" 형식의 값을 "char" 형식의 엔터티에 할당할 수 없습니다.` [에러해결 관련 링크](https://rewritestar.tistory.com/20)
+
+>중간 부분에 나오는 말
+>한 가지 재미있는 사실은 굳이 `operator=` 를 만들지 않더라도, 위 소스를 컴파일 하면 잘 작동한다는 점입니다. 이는 컴파일러 차원에서 디폴트 대입 연산자(default assignment operator)를 지원하고 있기 때문인데, 이전에 [복사 생성자를 다룰 때 디폴트 복사 생성자](https://modoocode.com/188)가 있었던 것과 일맥상통합니다.
+
+>디폴트 복사 생성자와 마찬가지로 디폴트 대입 연산자 역시 얕은 복사를 수행합니다. 따라서, 깊은 복사가 필요한 클래스의 경우 (예를 들어, 클래스 내부적으로 동적으로 할당되는 메모리를 관리하는 포인터가 있다던지) 대입 연산자 함수를 꼭 만들어주어야 할 필요가 있습니다.
+
+여기까지 읽고 갔으면 에러 고치는데 덜 고생했을 텐데..
+
+
+
+참고로, 연산자 오버로딩을 사용하게 된다면 `a+= b` 와 `a = a +` b; 가같다고 보장되지 않는다는 점을 명심해야 합니다. 컴파일러는 `operator+` 와 `operator=` 를 정의해놓았다고 해서 `a+=b` 를 자동으로 `a = a +` b; 로 바꾸어 주지 않습니다. 반드시 `operator+=` 를 따로 만들어야지 `+=` 를 사용할 수 있게 됩니다. 이와 같은 사실은 `++` 을 `+= 1` 로 바꾸어 주지 않는다던지, `--` 를 `-= 1` 로 바꾸어 주지 않는 다는 사실과 일맥상통합니다. 즉, 연산자 오버로딩을 하게 된다면 여러분이 생각하는 모든 연산자들에 대해 개별적인 정의가 필요합니다.
+
+`a = a + "-1.1 + i3.923";`
+
+와 같은 문장을 사용하였을 때, 앞에서 이야기 해왔듯이 컴파일러가 위 문장을
+
+`a = a.operator+("-1.1 + i3.923");`
+
+로 바꿔줍니다. 하지만, 우리에게는 `operator+(const char *str)` 이 없고, `operator+(const Complex& c)` 밖에 없기 때문에 직접적으로 오버로딩 되지는 않습니다. 그렇지만, 컴파일러는 매우 똑똑하기 때문에 그 다음 순위로 오버로딩 될 수 있는 함수들이 있는지 없는 지 확인해봅니다. 그런데 놀랍게도, 우리에게는 `const char *` 에서 `Complex` 를 생성할 수 있는 생성자
+
+`Complex(const char* str);`
+
+가 있기 때문에 컴파일러는 문자열 리터럴로 부터 `const Complex` 타입의 객체를 새롭게 생성할 수 있게 된다는 것입니다. 즉, 위 문장은 은 다음과 같이 변환됩니다.
+
+`a = a.operator+(Complex("-1.1 + i3.923"));`
+
+그럼 이제 `const Complex` 에 인자로 전달할 수 있게 되어서 제대로 프로그램이 작동을 하게 되지요. 여기서 한 가지 짚고 넘어가야 할 점은, 만일 우리가 `operator+` 함수의 인자가 `const Complex& c` 가 아니라 그냥 `Complex& c` 로 받도록 하였다면 위와 같은 변환은 이루어지지 않습니다. 왜냐하면 `-1.1 + i3.923` 자체가 문자열 리터럴 이므로, 이를 바탕으로 생성된 객체 역시 상수 여야 하기 때문입니다. 따라서여러 모로 함수 인자의 값을 변형하지 않는다고 확신이 들면 무조건 `const` 인자로 받도록 하는 것이 좋습니다.
+
+> 이전에 explicit, mutable할때 이야기했던 부분을 이용한 것 같다.
+
+
+##### 복습 시 꼭 블로그 내용 확인!
+
+연습문제 : mystring 클래스 더 완벽하게 만들어보기 (연산자 오버로딩 포함)
+#재확인 짚고 넘어가야할 문제.
+
+-------------------------------------------------------------
+
+## 5-2
+
+이번 강좌에서는
+
+-   멤버 함수가 아닌 연산자 함수 오버로딩
+    
+-   입출력 연산자 오버로딩 (정확히 보면 `<<, >>` 연산자)
+    
+-   첨자 연산자 `[]` 오버로딩
+    
+-   타입 변환 연산자 오버로딩
+    
+-   증감 연산자 `++, --` 오버로딩
+    
+
+에 대해 다룹니다.
+
+#### friend 키워드
+
+>`friend` 키워드는 클래스 내부에서 다른 클래스나 함수들을 friend 로 정의할 수 있는데, `friend` 로 정의된 클래스나 함수들은 원래 클래스의 `private` 로 정의된 변수나 함수들에 접근할 수 있습니다.
+
+정말 친한 친구 사이라 보면 됩니다.
+
+한 가지 재미있는 점은 이 친구 관계가 **짝사랑** 과 같다는 점입니다. 즉 위 경우 `B` 는 `A` 의 모든 `private` 들을 볼 수 있지만, `B` 안에서 `A` 를 `friend` 로 지정하지 않는 이상, `A` 는 `B` 의 `private` 개체들에 접근할 수 없습니다.
+
+```c++
+class A {
+ private:
+  void private_func() {}
+  int private_num;
+
+  // B 는 A 의 친구!
+  friend class B;
+
+  // func 은 A 의 친구!
+  friend void func();
+};
+
+class B {
+ public:
+  void b() {
+    A a;
+
+    // 비록 private 함수의 필드들이지만 친구이기 때문에 접근 가능하다.
+    a.private_func();
+    a.private_num = 2;
+  }
+};
+
+void func() {
+  A a;
+
+  // 비록 private 함수의 필드들이지만 위와 마찬가지로 친구이기 때문에 접근
+  // 가능하다.
+  a.private_func();
+  a.private_num = 2;
+}
+
+int main() {}
+```
+
+#### 이항 연산자
+
+#### 2023-02-20
+
+>통상적으로 자기 자신을 리턴하지 않는 이항 연산자들, 예를 들어 위와 같은 `+`, `-`, `*`, `/` 들은 모두 외부 함수로 선언하는 것이 원칙 입니다. 반대로 자기 자신을 리턴하는 이항 연산자들, 예를 들어 `+=`, `-=` 같은 애들은 모두 멤버 함수로 선언하는 것이 원칙 입니다.
+
+> 자기 자신을 리턴하는 이항 연산자는 멤버 함수로, 아닌 애들은 외부 함수로 정의합시다!
+
+
+> << 연산자
+
+```c++
+std::ostream& operator<<(std::ostream& os, const Complex& c) {
+  os << "( " << c.real << " , " << c.img << " ) ";
+  return os;
+}
+```
+
+하지만 위 `operator<<` 의 경우 한 가지 문제가 있는데 바로 이 `operator<<` 에서 `c.real` 과 `c.img` 에 접근할 수 없다는 점입니다. 왜냐하면 `real` 과 `img` 모두 `Complex` 클래스의 `private` 멤버 변수들이기 때문이죠.
+
+따라서 이를 해결하기 위해 세 가지 방법을 고려할 수 있습니다.
+
+1.  그냥 `real` 과 `img` 를 `public` 으로 바꾼다.
+    
+2.  `Complex` 에 `print(std::ostream& os)` 와 같은 멤버 함수를 추가한 뒤, 이를 `operator<<` 에서 호출한다.
+    
+3.  위 `operator<<` 를 `friend` 로 지정한다.
+    
+
+첫 번째 방법은 그닥 권장되지 않는 방법입니다. 구현 디테일은 최대한 숨기는 것이 좋습니다. 두 번째 방법은 나름 괜찮은 방법이기는 합니다. 하지만 `friend` 를 활용해보자는 입장에서 세 번째 방법을 사용해보도록 하겠습니다.
+
+```c++
+friend ostream& operator<<(ostream& os, const Complex& c);
+```
+위와 같이 `friend` 선언을 해주시면 됩니다. 비슷한 방법으로 `Complex` 객체 `c` 에 대해 `cin >> c;` 와 같은 작업을 할 수 있습니다. 다만, 이번에는 [cin](https://modoocode.com/280) 은 [istream](https://modoocode.com/146) 객체이고, `opreator>>` 를 오버로딩 해야 된다는 점이 다를 뿐이지요.
+
+
+
+>[] 연산자
+
+```c++
+char& MyString::operator[](const int index) { return string_content[index]; }
+```
+
+> 타입 변환 연산자도 있음. (Wrapper 클래스)
+
+오퍼레이터의 역할이 동일할 때는, 일일이 하나씩 써주는 것이 아니라,
+`operator int() { return data; }` 으로 int의 모든 오퍼레이터를 모두 가져올 수 있음.
+data는 class 내부의 int 변수
+
+자세한 내용은 5-2 내부 참고
+
+전위, 후위 연산자도 공부함.
+
+전위 연산자는 
+```c++
+operator++();
+operator--();
+```
+로 적고,
+
+후위 연산자는
+```c++
+operator++(int x);
+operator--(int x);
+```
+로 구현함. 실제로 인자로 들어가는 값은 없고, 단순히 구분을 위한 명시 용도임.
+
+```c++
+operator++(int);
+operator--(int);
+```
+로 적어도 무방함.
+
+참고로, 구현할땐 a++와, ++a의 반영시점을 고려해서,
+```c++
+A& operator++() {
+  // A ++ 을 수행한다.
+  return *this;
+}
+
+A operator++(int) {
+  A temp(A);
+  // A++ 을 수행한다.
+  return temp;
+}
+
+```
+로 차이가 있게 적을 수 있겠음.
+
+따라서 후위 증감 연산의 경우 추가적으로 복사 생성자를 호출하기 때문에 전위 증감 연산보다 더 느립니다.
+
+연산자 오버로딩에 대해 다루면서 몇 가지 중요한 포인트 들만 따로 정리해보자면;
+
+-   두 개의 동등한 객체 사이에서의 이항 연산자는 멤버 함수가 아닌 외부 함수로 오버로딩 하는 것이 좋습니다. (예를 들어 `Complex` 의 `operator+(const Complex&, const Complex&) const` 와 같이 말입니다.)
+    
+-   두 개의 객체 사이의 이항 연산자 이지만 한 객체만 값이 바뀐다던지 등의 동등하지 않는 이항 연산자는 멤버 함수로 오버로딩 하는 것이 좋습니다. (예를 들어서 `operator+=` 는 이항 연산자 이지만 `operator+=(const Complex&)` 가 낫다)
+    
+-   단항 연산자는 멤버 함수로 오버로딩 하는 것이 좋습니다 (예를 들어 `operator++` 의 경우 멤버 함수로 오버로딩 합니다)
+    
+-   일부 연산자들은 반드시 멤버 함수로만 오버로딩 해야 합니다 (강좌 앞 부분 참고)
+    
+
+자, 이것으로 가장 많이 사용되는 연산자 함수들에 대해 알아보았습니다. 이제 슬슬 C++ 언어의 강력함이 느껴지시나요? 다음 강좌에서는 여태까지 배운 내용들을 총 망라하는 조그마한 프로젝트를 해볼려고 합니다. 그 프로젝트는 아래 '생각해보기'에 나와 있는데요, 다음 강좌를 보기 전 까지 아래 문제를 한 번 해결해 보시기 (해결은 못해도 최소한 노력은 하시기) 바랍니다.
+
+>`N` 차원 배열을 제공하는 클래스를 만들어보세요. 이는 여러분이 여태까지 배운 내용을 시험할 것입니다. 참고로, 원소에 접근하기 위해서는 `a[1][2][3]` 과 같은 방법으로 접근하겠지요. 다만 `N` 차원 배열이기 때문에 (N은 객체 생성시에 사용자가 입력합니다) 2 차원 배열은 `a[1][2], 3` 차원 배열은 `a[1][2][3]` 과 같은 방식으로 접근할 것입니다. (난이도 : 最上) #재확인 , !!5-3은 스킵함!!
+
+>영어를 잘하시는 분들은 연산자 오버로딩에 관해 정리해 놓은 [다음 글](http://stackoverflow.com/questions/4421706/operator-overloading)을 읽어보시기를 추천합니다. 참고로 이 글에서 다루지만 본 강좌에서는 다루지 않는 일부 내용들은 아직 배운 내용이 아니라 생략한 것이므로 너무 걱정하지 마시고 복습하는 느낌으로 천천히 읽어보시면 좋습니다. (난이도 : 中)
+
+------------------------------------------------
+
+#### 2023-02-21
+
+5-1은 시도해봤으나, 생각보다 어려워서 필요한 내용만 읽고 넘어가기로 함.
+
+>이번 강좌의 내용은 C++ 을 처음 배우는 분들에게는 이해하기 버거울 수 있습니다. 만일 내용이 도저히 이해가 되지 않는 다면, 이전 연산자 오버로딩 강좌 두 개를 꼼꼼히 다시 읽어보신 다음에, 이 강좌 앞부분 (C++ 스타일의 캐스팅) 만 읽고 넘어가셔도 좋습니다. 하지만 C++ 을 어느 정도 배웠고 복습하시는 차원에서 보시는 분들은 꼭 읽어보시기 바랍니다.
+
+### c++ 스타일의 캐스팅(형변환)
+
+C++ 에서는 다음과 같은 4 가지의 캐스팅을 제공하고 있습니다.
+
+-   `static_cast` : 우리가 흔히 생각하는, 언어적 차원에서 지원하는 일반적인 타입 변환
+    
+-   `const_cast` : 객체의 상수성(const) 를 없애는 타입 변환. 쉽게 말해 `const int` 가 `int` 로 바뀐다.
+    
+-   `dynamic_cast` : 파생 클래스 사이에서의 다운 캐스팅 (→ 정확한 의미는 나중에 다시 배울 것입니다)
+    
+-   `reinterpret_cast` : 위험을 감수하고 하는 캐스팅으로 서로 관련이 없는 포인터들 사이의 캐스팅 등
+
+
+이 때 이러한 캐스팅을 사용하는 방법은 다음과 같습니다.
+
+(원하는 캐스팅 종류)<바꾸려는 타입>(무엇을 바꿀 것인가?)
+
+```c++
+static_cast<int>(float_variable); // 와 같은 방식
+```
+
+사실 현재까지 배운 내용 정도 에서는, `static_cast` 만 사용하지 나머지 캐스팅들은 별로 신경 안쓰셔도 됩니다. 여러분이 C 언어에서 수행하였던 대부분의 아무런 문제없는 캐스팅들은 모두 `static_cast` 로 해주시면 됩니다. 강좌를 진행하면서 나머지 캐스팅들을 어떠한 상황에서 사용하는지 차근 차근 알아보도록 할 것입니다.
+
+## 6-1
+
+#### c++ 표준 문자열(string), 상속, 오버라이딩, protected에 대해 배움
+
+### string
+
+```c++
+ std::string s = "abc";
+ std::string t = "def";
+ std::string s2 = s;
+```
+
+`==` 나 `!=` 로 비교하는 것이 불가능 하였습니다. (왜냐하면 이는 문자열의 주소값을 비교하는 것이였으니까요! - 혹시 기억이 잘 나지 않는 분들은 [이 강좌를 다시 보고 오세요](https://modoocode.com/33)!) 하지만 이 [string](https://modoocode.com/237) 클래스는 `==` 와 `!=` 연산자들을 모두 오버로딩해서 제대로 비교를 수행합니다. 뿐만 아니라 크기 비교 `>=, <=` 등도 제대로 수행이 되지요.
+
+사실 [string](https://modoocode.com/237) 에서 제공하는 함수와 기능들인 제가 소개한 것 말고도 엄청나게 많아서 한 강좌에 다 채워놓지 못할 정도 입니다. 위에서는 가장 많이 쓰는 기능만 소개해놓았고 모든 정보를 원하신다면 [여기](https://modoocode.com/233)를 참조하시면 됩니다.
+
+표준 문자열 [std::string](https://modoocode.com/237) 에는 `length` 함수 말고도, 문자열 사이에 문자열을 삽입하는 [insert](https://modoocode.com/238) 함수나, 특정 위치를 지우는 [erase](https://modoocode.com/240) 나 문자열을 치환하는 [replace](https://modoocode.com/317) 등등 수 많은 유용한 함수들이 많습니다.
+
+### 상속 
+
+```c++
+class Derived : public Base // 와 같은 방식으로 정의. 클래스 Derived는 public 혙식으로 Base를 상속하겠다는 얘기.
+```
+
+그리고 또 하나 눈여겨 봐야 할 점은 `Derived` 의 생성자 호출 부분 입니다. `Derived` 의 생성자는 위 처럼 초기화자 리스트에서 기반의 생성자를 호출해서 기반의 생성을 먼저 처리 한 다음에, `Derived` 의 생성자가 실행되어야 합니다. 따라서 아래 처럼
+
+```c++
+Derived() : Base(), s("파생")
+```
+
+
+초기화 리스트에서 `Base` 를 통해 기반의 생성자를 먼저 호출하게 됩니다. 참고로 기반 클래스의 생성자를 명시적으로 호출하지 않을 경우 기반 클래스의 디폴트 생성자가 호출됩니다.
+(마치 자바의 super() 꼭 써줘야하는 그런 것 같다. )
+
+이번에는 `Derived` 와 `Base` 에 둘다 `what()` 함수가 정의되어 있습니다. 이 경우, `Derived` 에서 아래처럼 `what` 을 호출하게 되면 무엇이 호출 될까요?
+
+어떤 분들은 컴파일 상에서 문제가 발생하지 않을까 라고 생각할 수 도 있는데, 사실 두 함수는 같은 이름이지만 (심지어 인자들도 같지만), 다른 클래스에 정의되어 있는 것이기 때문에 다른 함수로 취급됩니다. (물론, `Derived` 안에 `what` 에 두 개 정의되어 있다면 문제가 되었겠지요)
+
+위 경우에는 `Derived` 에 `what` 함수가 정의되어 있기 때문에 `Derived` 의 생성자에서 `what` 을 호출 할 때 (굳이) 멀리 `Base` 의 함수들 까지 뒤지지 않고, 바로 앞에 있는 `Derived` 의 `what` 함수를 호출하게 됩니다.
+
+이런 것을 가리켜 오버라이딩(overriding)이라고 합니다. 즉, `Derived` 의 `what` 함수가 `Base` 의 `what` 함수를 오버라이딩 한 것이지요.
+
+>그 외 자세한 내용은 강의 직접 참고
+
+아니 이게 도대체 무슨 말인가요! 기껏 상속 받았더니, 접근할 수 없다니요. 하지만 사실 `private` 멤버 변수들은 그 어떠한 경우에서도 자기 클래스 말고는 접근할 수 없습니다.
+
+그렇지만 종종 파생 클래스(상속 받는 클래스 - 위 경우 `Derived` 클래스)에서 원래 기반의 클래스 (즉 여기서 `Base`) 의 데이터에 직접 접근할 필요성이 있습니다.
+
+예를 들어서 우리의 예시의 경우 `Employee` 클래스를 기반 클래스로 해서 `Manager` 클래스가 상속 받았을 때, `name` 이나 `age` 에 접근할 필요성이 있겠지요.하지만 이들은 private 으로 되어 있기 때문에 접근이 불가합니다.
+
+다행이도 C++ 에서는 `protected` 라는 `public` 과 `private` 에 중간 위치에 있는 접근 지시자를 지원합니다. 이 키워드는, 상속받는 클래스에서는 접근 가능하고 그 외의 기타 정보는 접근 불가능 이라고 보시면 됩니다. 부모(기반 클래스) 와 자식(파생 클래스) 으로 쉽게 비유하자면
+
+-   `private` : (부모님들한테 안가르쳐 주는) 자신만의 비밀번호
+    
+-   `protected` : 집 현관문 비밀번호 ( 가족들은 알지만 그 외의 사람들은 접근불가)
+    
+-   `public` : 집 주소 (가족 뿐만이 아니라 다른 사람들도 알 수 있다)
+    
+
+이렇게 3 단계로 멤버의 접근 허용 범위를 지정할 수 있습니다. 그렇다면 실제로 `private` 을 `protected` 로 바꾼다면 잘 실행됨을 알 수 있습니다.
+
+>그외 코드 등 예시는 강의 참고
+
+
+
+정의 부분
+
+```c++
+class Derived : public Base
+```
+
+에서 이 `public` 키워드의 의미를 밝힐 때가 됐군요. 사실 저 키워드가 `public` 이냐 `protected` 냐 `private` 이냐에 따라 상속 받는 클래스에서 기반 클래스의 멤버들이 실제로 어떻게 작동하는지 영향을 줍니다. 이게 무슨 말이냐면
+
+-   만일 위처럼 `public` 형태로 상속 하였다면 기반 클래스의 접근 지시자들에 영향 없이 그대로 작동합니다. 즉 파생 클래스 입장에서 `public` 은 그대로 `public` 이고, `protected` 는 그대로 `protected` 이고, `private` 은 그대로 `private` 입니다.
+    
+-   만일 `protected` 로 상속하였다면 파생 클래스 입장에서 (부모 클래스에서 받아온 것들의)`public` 은 `protected` 로 바뀌고 나머지는 그대로 유지됩니다.
+    
+-   만일 `private` 으로 상속하였다면 파생 클래스 입장에서 (부모 클래스에서 받아온 것들의) 모든 접근 지시자들이 `private` 가 됩니다.
+
+
+------------------------------------
+
+## 6-2
+
+### is-a 와 has-a 관계, 오버라이딩, virtual 키워드와 가상함수, 다형성
+
+일단 이야기를 진행하기 전에, 어떠한 경우에서 상속을 사용하는지 생각해봅시다. C++ 에서 상속을 도입한 이유는 단순히 똑같은 코드를 또 쓰는 것을 막기 위한 Ctrl + C, Ctrl + V 방지용으로 위한 것이 아닙니다 (물론 그러한 이유도 약간 있겠지만). 실제 이유는 상속이라는 기능을 통해서 객체지향프로그래밍에서 추구하는 실제 객체의 추상화를 좀 더 효과적으로 할 수 있게 되었습니다.
+
+이게 무슨 말이냐면 상속이란 것이 없던 C 언어에서는 어떠한 구조체 사이의 관계를 표현할 수 있는 방법이 없었습니다. 하지만 C++ 에서 상속이란 것을 도입함으로써, 클래스 사이에 관계를 표현할 수 있게 되었는데, 예를 들어서 `Manager` 가 `Employee` 를 상속한다;
+
+의 의미는,
+
+-   `Manager` 클래스는 `Employee` 의 모든 기능을 포함한다
+    
+-   `Manager` 클래스는 `Employee` 의 기능을 모두 수행할 수 있기 때문에 (Manager 에게는 약간 기분 나쁘겠지만) `Manager` 를 `Employee` 라고 칭해도 무방하다
+    
+-   즉, 모든 `Manager` 는 `Employee` 이다
+    
+-   Manager is a Employee !!
+    
+
+따라서, 모든 상속 관계는 is a 관계라고 볼 수 있습니다. 당연한 점은, 이를 뒤바꾸면 성립되지 않는 다는 점입니다. 즉 `Manager` 는 `Employee` 이지만 `Employee` 는 `Manager` 가 아닙니다. 이렇기에, `Manager` 를 `Employee` 로 부를 수 있지만, `Employee` 는 `Manager` 로 (미안하게도) 부를 수 없습니다.
+
+![이미지](https://modoocode.com/img/223ADD465337C5D02236C5.webp)
+
+프로그램 설계 시에 클래스들 간의 상속 관계를 도표로 나타내는 경우가 종종 있는데, 많은 경우 파생 클래스가 기반 클래스를 화살표로 가리키게 그립니다.
+
+이를 통해서 상속의 또 하나의 중요한 특징을 알 수 있습니다. 바로 클래스가 파생되면 파생될 수 록 좀 더 
+**특수화 (구체화;specialize)** 
+된다는 의미 입니다. 즉, `Employee` 클래스가 일반적인 사원을 위한 클래스 였다면 `Manager` 클래스 들은 그 일반적인 사원들 중에서도 좀 더 특수한 부류의 사원들을 의미하게 됩니다.
+
+또, `BankAccount` 도 일반적인 은행 계좌를 위한 클래스 였다면, 이를 상속 받는 `CheckingAccount, SavingsAccount` 들은 좀 더 구체적인 클래스가 되지요. 반대로, 기반 클래스로 거슬러 올라가면 올라갈 수 록 좀 더
+**일반화 (generalize)** 
+된다고 말합니다.
+
+
+>그렇다면 모든 클래스들의 관계를 `is - a` 로만 표현할 수 있을까요? 당연히 그렇지 않습니다. 어떤 클래스들 사이에서는 `is - a` 대신에 `has - a` 관계가 성립하기도 합니다. 
+
+예를 들어서, 간단히 자동차 클래스를 생각해봅시다. 자동차 클래스를 구성하기 위해서는 엔진 클래스, 브레이크 클래스, 오디오 클래스 등 수 많은 클래스들이 필요합니다. 그렇다고 이들 사이에 `is a` 관계를 도입 할 수 없습니다. (자동차 `is a` 엔진? 자동차 `is a` 브레이크?) 그 대신, 이들 사이는 `has - a` 관계로 쉽게 표현할 수 있습니다.
+
+즉, 자동차는 엔진을 가진다 (자동차 `has a` 엔진), 자동차는 브레이크를 가진다 (자동차 `has a` 브레이크) 이와 같이 말이지요. 이런 `has - a` 관계는 우리가 흔히 해왔듯이 다음과 같이 클래스로 나타내면 됩니다.
+
+```c++
+class Car {
+ private:
+  Engine e;
+  Brake b;  // 아마 break 아니냐고 생각하는 사람들이 있을 텐데 :)
+  ....
+};
+```
+
+### 오버라이딩
+
+기존 아는 내용은 강의 보시고,
+
+```c++
+#include <iostream>
+#include <string>
+
+class Base {
+  std::string s;
+
+ public:
+  Base() : s("기반") { std::cout << "기반 클래스" << std::endl; }
+
+  void what() { std::cout << s << std::endl; }
+};
+class Derived : public Base {
+  std::string s;
+
+ public:
+  Derived() : s("파생"), Base() { std::cout << "파생 클래스" << std::endl; }
+
+  void what() { std::cout << s << std::endl; }
+};
+int main() {
+  Base p;
+  Derived c;
+
+  std::cout << "=== 포인터 버전 ===" << std::endl;
+  Base* p_c = &c;
+  p_c->what();
+
+  return 0;
+} // 하면, p_c->what()에서 base의 what이 실행된다.
+```
+
+어떤 분들은 이와 같은 대입이 가능하냐고 물을 수 있습니다. `Base` 와 `Derived` 는 다른 클래스 이니까요. 하지만, 그 분들이 간과하고 있는 점은 `Derived` 가 `Base` 를 상속 받고 있다는 점입니다. 상속 받는다면 뭐죠? Derived is a Base
+
+즉 (말이 조금 이상하지만) `Derived` 객체 `c` 도 어떻게 보면 `Base` 객체이기 때문에 `Base` 객체를 가리키는 포인터가 `c` 를 가리켜도 무방하다는 것입니다. 이를 그림으로 표현한다면 아래와 같습니다.
+
+![이미지](https://modoocode.com/img/cpp/6.2.1.png)
+
+그 대신 `p` 는 엄연한 `Base` 객체를 가리키는 포인터 입니다. 따라서, `p` 의 `what` 을 실행한다면 `p` 는 당연히 '아 `Base` 의 `what` 을 실행해 주어야 겠구나' 하고, `Base` 의 `what` 을 실행해서, `Base` 의 `what` 은 `Base` 의 `s` 를 출력 하게 됩니다. 따라서 위 처럼 '기반' 가 출력됩니다.
+
+이러한 형태의 캐스팅을 (즉 파생 클래스에서 기반 클래스로 캐스팅 하는 것) 을 
+**업 캐스팅**
+이라고 부릅니다.
+
+![이미지](https://modoocode.com/img/cpp/6.2.2.png)
+
+위 그림을 보면 왜 업 캐스팅이라 부르는지 이해가 확 되지요.
+
+(자바에서 자동 타입 변형을 통해 부모클래스에 자식 클래스를 넣으면, 부모 클래스의 필드와 메소드만 사용 가능하다는 점에서, 이와 비슷한 느낌인 것 같다. 다만, 해당 c++ 예시의 경우, 자바와 달리 오버라이딩되어 재정의된 자식 클래스의 메소드가 호출되지 않는다는 점에서 다르다.) (자바와 동일한 예시는 하단의 virtual 파트에서 다룬다.)
+
+그렇다면 업 캐스팅의 반대인 다운 캐스팅도 있을까요?
+컴파일 한다면 다음과 같은 오류 메세지를 볼 수 있습니다.
+![이미지](https://modoocode.com/img/cpp/6.2.3.png)
+
+만일 `Derived*` 포인터가 `Base` 객체를 가리킨다고 해봅시다. 그렇다면 `p_p->what()` 하게 된다면 `Derived` 의 `what` 함수가 호출되어야만 하는데, 이는 불가능 합니다. (왜냐하면 `p_p` 가 가리키는 객체는 `Base` 객체 이므로 `Derived` 에 대한 정보가 없습니다). 따라서, 이와 같은 문제를 막기 위해서 컴파일러 상에서 함부로 다운 캐스팅 하는 것을 금지하고 있습니다.
+
+
+다만,
+```c++
+  Base* p_p = &c;
+
+  Derived* p_c = p_p;
+```
+
+에서도 오류가 난다.
+
+`Derived* p_c` 에 `Base *` 를 대입하면 안된다는 똑같은 오류가 발생합니다. 하지만 우리는 `p_p` 가 가리키는 것이 `Base` 객체가 아니라 `Derived` 객체라는 사실을 알고 있습니다. 그렇기 때문에 비록 `Base *` 포인터를 다운 캐스팅 함에도 불구하고 `p_p` 가 실제로는 `Derived` 객체를 가리키기 때문에 진행해도 전혀 문제가 없으므로,
+
+```c++
+Derived* p_c = static_cast<Derived*>(p_p);
+```
+과 같은 강제적 형변환을 하면 된다.
+
+비록 약간은 위험하지만 (만일 `p_p` 가 사실은 `Derived` 객체를 가리키지 않는다면?) 컴파일 오류를 발생시키지 않고 성공적으로 컴파일 할 수 있습니다. 
+
+그렇다면 만일 `p_p` 가 사실 `Base` 객체를 가리키는데 강제적으로 타입 변환을 해서 `what` 을 실행한다면 어떨까요?
+
+런타임 오류가 발생하게 됩니다.
+
+이러한 강제적으로 다운 캐스팅을 하는 경우, 컴파일 타임에서 오류를 찾아내기 매우 힘들기 때문에 **다운 캐스팅은 작동이 보장되지 않는 한 매우매우 권장하지 않는 바**입니다.
+
+이러한 캐스팅에 따른 오류를 미연에 방지하기 위해서, C++ 에서는 상속 관계에 있는 두 포인터들 간에 캐스팅을 해주는 `dynamic_cast` 라는 것을 지원합니다. 이를 사용하는 방법은 `static_cast` 와 거의 동일합니다.
+
+같은 상황에서, dynamic_cast를 사용하고 컴파일하면, 캐스팅할수 없다는 컴파일 오류가 발생하게 된다.
+
+### virtual
+
+```c++
+class Base {
+
+ public:
+  Base() { std::cout << "기반 클래스" << std::endl; }
+
+  virtual void what() { std::cout << "기반 클래스의 what()" << std::endl; }
+};
+```
+
+부모 클래스의 메소드에 해당 키워드를 입력한 후,
+
+코드를 실행시에 (런타임), 컴퓨터 입장에서;
+
+"흠, p_c 는 Base 포인터니까 Base 의 what() 을 실행해야지"
+"어 근데 what 이 virtual 이네?"
+
+"잠깐. 이거 실제 Base 객체 맞어? 아니네 Derived 객체네"
+"그럼 Derived 의 what 을 실행해야지"
+
+///////
+
+"흠, p_c 는 Base 포인터니까 Base 의 what() 을 실행해야지"
+"어 근데 what 이 virtual 이네?"
+
+"잠깐. 이거 실제 Base 객체 맞어? 어 맞네."
+"Base 의 what 을 실행하자"
+
+이렇게 컴파일 시에 어떤 함수가 실행될 지 정해지지 않고 런타임 시에 정해지는 일을 가리켜서 
+**동적 바인딩(dynamic binding)**
+이라고 부릅니다. 
+
+`Derived` 의 `what` 을 실행할지, `Base` 의 `what` 을 실행하지 결정은 런타임에 이루어지게 됩니다.
+
+물론 동적 바인딩의 반대말로 **정적 바인딩(static binding)** 이란 말도 있습니다. 이는 컴파일 타임에 어떤 함수가 호출될 지 정해지는 것으로 여태까지 여러분이 알고 오셨던 함수에 해당합니다.
+
+덧붙여서, `virtual` 키워드가 붙은 함수를 가상 함수(virtual function) 라고 부릅니다. 이렇게 파생 클래스의 함수가 기반 클래스의 함수를 오버라이드 하기 위해서는 두 함수의 꼴이 정확히 같아야 합니다.
+
+### override 키워드
+
+C++ 11 에서는 파생 클래스에서 기반 클래스의 가상 함수를 오버라이드 하는 경우, `override` 키워드를 통해서 명시적으로 나타낼 수 있습니다.
+
+위 경우 `Derived` 클래스의 `what` 함수는 `Base` 클래스의 `what` 함수를 오버라이드 하므로, `override` 키워드를 통해 이를 알려주고 있습니다.
+
+`override` 키워드를 사용하게 되면, 실수로 오버라이드를 하지 않는 경우를 막을 수 있습니다.
+
+```c++
+class Base {
+  std::string s;
+
+ public:
+  Base() : s("기반") { std::cout << "기반 클래스" << std::endl; }
+
+  virtual void what() { std::cout << s << std::endl; }
+};
+class Derived : public Base {
+  std::string s;
+
+ public:
+  Derived() : s("파생"), Base() { std::cout << "파생 클래스" << std::endl; }
+
+  void what() override { std::cout << s << std::endl; }
+};
+```
+
+위 경우 `Derived` 클래스의 `what` 함수는 `Base` 클래스의 `what` 함수를 오버라이드 하므로, `override` 키워드를 통해 이를 알려주고 있습니다.
+
+`override` 키워드를 사용하게 되면, 실수로 오버라이드를 하지 않는 경우를 막을 수 있습니다. 
+
+예를 들어서
+
+```c++
+virtual void incorrect() { std::cout << "기반 클래스 " << std::endl; }
+
+ void incorrect() const { std::cout << "파생 클래스 " << std::endl; }
+```
+
+해당 경우에도, 하나는 상수함수, 하나는 아니기때문에 오버라이딩이 정상적으로 되지 않는데,
+아래의 명령줄에 override가 붙어 있으면, `Derived` 의 `incorrect` 함수가 `override` 한다고 써있지만, 실제로는 아무것도 오버라이드 하지 않는다고 오류가 발생하게 됩니다. 
+
+만일 `const` 키워드를 지워준다면 정상 작동된다.
+
+```c++
+employee_list[i]->print_info();
+total_pay += employee_list[i]->calculate_pay();
+```
+
+이 두 부분은 `employee_list[i]` 가 `Employee` 냐 `Manager` 에 따라서 다르게 동작하게 됩니다. 이렇게 같은 `print_info` 함수를 호출했음에도 불구하고 어떤 경우는 `Employee` 의 것이, 어떤 경우는 `Manager` 의 것이 호출되는 일; 
+
+>즉 하나의 메소드를 호출했음에도 불구하고 여러가지 다른 작업들을 하는 것을 바로 
+>**다형성(polymorphism)** 
+>이라고 부릅니다.
+
+-------------------------------------------------------------------------------
+
+## 6-3
+
+### virtual 소멸자, 가상 함수 테이블, 다중 상속, 가상 상속
+
+사실 클래스의 상속을 사용함으로써 중요하게 처리해야 되는 부분이 있습니다. 상속 시에, 소멸자를 가상함수로 만들어야 된다는 점입니다.
+
+```c++
+#include <iostream>
+
+class Parent {
+ public:
+  Parent() { std::cout << "Parent 생성자 호출" << std::endl; }
+  ~Parent() { std::cout << "Parent 소멸자 호출" << std::endl; }
+};
+class Child : public Parent {
+ public:
+  Child() : Parent() { std::cout << "Child 생성자 호출" << std::endl; }
+  ~Child() { std::cout << "Child 소멸자 호출" << std::endl; }
+};
+int main() {
+  std::cout << "--- 평범한 Child 만들었을 때 ---" << std::endl;
+  { Child c; }
+  std::cout << "--- Parent 포인터로 Child 가리켰을 때 ---" << std::endl;
+  {
+    Parent *p = new Child();
+    delete p;
+  }
+}
+```
+위 예시에서, 포인터를 이용했을때는 소멸자가 제대로 호출되지 않는다.
+
+`delete p` 를 하더라도, `p` 가 가리키는 것은 `Parent` 객체가 아닌 `Child` 객체 이기 때문에, 위에서 보통의 `Child` 객체가 소멸되는 것과 같은 순서로 생성자와 소멸자들이 호출되어야만 합니다. 그런데 실제로는, `Child` 소멸자가 호출되지 않습니다.
+
+소멸자가 호출되지 않는다면 여러가지 문제가 생길 수 있습니다. 예를 들어서, `Child` 객체에서 메모리를 동적으로 할당하고 소멸자에서 해제하는데, 소멸자가 호출 안됬다면 *메모리 누수(memory leak)*가 생기겠지요.
+
+하지만 `virtual` 키워드를 배운 이상 여러분은 무엇을 해야 하는지 알고 계실 것입니다. 단순히 `Parent` 의 소멸자를 `virtual` 로 만들어버리면 됩니다. `Parent` 의 소멸자를 `virtual` 로 만들면, `p` 가 소멸자를 호출할 때, `Child` 의 소멸자를 성공적으로 호출할 수 있게 됩니다.
+
+여기서 한 가지 질문을 하자면, 그렇다면 왜 `Parent` 소멸자는 호출이 되었는가 인데, 이는 `Child` 소멸자를 호출하면서, `Child` 소멸자가 '알아서' `Parent` 의 소멸자도 호출해주기 때문입니다 (`Child` 는 자신이 `Parent` 를 상속받는다는 것을 알고 있습니다).
+
+반면에 `Parent` 소멸자를 먼저 호출하게 되면, `Parent` 는 `Child` 가 있는지 없는지 모르므로, `Child` 소멸자를 호출해줄 수 없습니다 (Parent 는 자신이 누구에서 상속해주는지 알 수 없지요).
+
+이와 같은 연유로,상속될 여지가 있는 `Base` 클래스들은 (위 경우 `Parent`) 반드시 소멸자를 `virtual` 로 만들어주어야 나중에 문제가 발생할 여지가 없게 됩니다.
+
+### 위의 포인터를 이용한 방식이 아니라, 매개변수에 레퍼런스라던가, 아무튼 참조자를 이용한 것도 동일한 방식으로 업캐스팅, 작동 가능하다.
+
+다만, 포인터나 레퍼런스를 활용하지 않고 직접 다른 객체에 대입하는 경우에는, 오버라이딩이 정상적으로 이루어지지 않는다.
+
+### 가상함수 구현원리
+
+다 가상함수 쓰면안되나 하는 의문 들 수 있음.
+그렇다면 왜 C++ 에서는 `virtual` 키워드를 이용해 사용자가 직접 `virtual` 로 선언하도록 하였을까요? 그 이유는 가상 함수를 사용하게 되면 약간의 **오버헤드 (overhead)** 가 존재하기 때문입니다.
+랙걸린다는 소리다.
+
+C++ 컴파일러는 가상 함수가 하나라도 존재하는 클래스에 대해서, 
+**가상 함수 테이블(virtual function table; vtable)**
+을 만들게 됩니다. 가상 함수 테이블은 전화 번호부라고 생각하시면 됩니다.
+
+```c++
+class Parent {
+ public:
+  virtual void func1();
+  virtual void func2();
+};
+class Child : public Parent {
+ public:
+  virtual void func1();
+  void func3();
+};
+```
+해당 예제를 예로 들면,
+
+![이미지](https://modoocode.com/img/2113164253DB01CF09ACCF.webp)
+
+와 같은 테이블이 생성된다.
+
+위와 같이 구성됩니다. 가상 함수와 가상 함수가 아닌 함수와의 차이점을 살펴보자면 `Child` 의 `func3()` 같이 비 가상함수들은 그냥 단순히 특별한 단계를 걸치지 않고, `func3()` 을 호출하면 직접 실행됩니다.
+
+하지만, 가상 함수를 호출하였을 때는 그 실행 과정이 다릅니다. 위에서도 보이다 싶이, 가상 함수 테이블을 한 단계 더 걸쳐서, 실제로 어떤 함수를 고를지 결정하게 됩니다.
+
+예를 들어,
+```c++
+Parent* p = Parent();
+p->func1();
+```
+
+을 해봅시다. 그러면, 컴파일러는
+
+1.  `p` 가 `Parent` 를 가리키는 포인터 이니까, `func1()` 의 정의를 `Parent` 클래스에서 찾아봐야겠다.
+    
+2.  `func1()` 이 가상함수네? 그렇다면 `func1()` 을 직접 실행하는게 아니라, 가상 함수 테이블에서 `func1()` 에 해당하는 함수를 실행해야겠다.
+    
+
+그리고 실제로 프로그램 실행시에, 가상 함수 테이블에서 `func1()` 에 해당하는 함수(`Parent::func1()`) 을 호출하게 됩니다.
+
+이와 같이 두 단계에 걸쳐서 함수를 호출함을 통해 소프트웨어적으로 동적 바인딩을 구현할 수 있게 됩니다. 이러한 이유로 가상 함수를 호출하는 경우, 일반적인 함수 보다 약간 더 시간이 오래 걸리게 됩니다.
+
+물론 이 차이는 극히 미미하지만, 최적화가 매우 중요한 분야에서는 이를 감안할 필요가 있습니다. 아무튼 이러한 연유로 인해, 다른 언어들과는 다르게, C++ 에서는 멤버 함수가 디폴트로 가상함수가 되도록 설정하지는 않습니다.
+
+### 순수 가상 함수와 추상 클래스
+
+(자바때 배웠던 abstract와 거의 동일하다. 다만, 문법은 다르다.)
+또, 클래스와 메소드가 따로 abstract를 지정할 수 있던 것과 다르게,
+
+
+```c++
+virtual void speak() = 0;
+```
+와 같이 표기한다.
+
+이 함수는 무엇을 하는 함수 일까요? 그 답은, "무엇을 하는지 정의되어 있지 않는 함수" 입니다. 다시 말해 이 함수는 반드시 오버라이딩 되어야만 하는 함수 이지요.
+
+이렇게, 가상 함수에 `= 0;` 을 붙여서, 반드시 오버라이딩 되도록 만든 함수를 완전한 가상 함수라 해서, **순수 가상 함수(pure virtual function)**라고 부릅니다.
+
+당연하게도, 순수 가상 함수는 본체가 없기 때문에, 이 함수를 호출하는 것은 불가능합니다.
+
+물론, `speak()` 함수를 호출하는 것을 컴파일러 상에서 금지하면 되지 않냐고 물을 수 있는데, C++ 개발자들은 이러한 방법 대신에 아예 `Animal` 의 객체 생성을 금지시키는 것으로 택하였습니다. (쉽게 말해 `Animal` 의 인스턴스를 생성할 수 없지요)
+
+순수 가상 함수를 최소 한 개 이상 포함하고 있는 클래스는 객체를 생성할 수 없으며, 인스턴스화 시키기 위해서는 이 클래스를 상속 받는 클래스를 만들어서 모든 순수 가상 함수를 오버라이딩 해주어야만 합니다.
+
+순수 가상 함수를 최소 한개 포함하고 있는- 반드시 상속 되어야 하는 클래스를 가리켜 
+**추상 클래스 (abstract class)**
+라고 부릅니다. (참고로, `private` 안에 순수 가상 함수를 정의하여도 문제 될 것이 없습니다. `private` 에 정의되어 있다고 해서 오버라이드 안된다는 뜻이 아니기 때문이죠. 다만 자식 클래스에서 호출을 못할 뿐입니다.)
+
+
+추상 클래스의 또 한가지 특징은 비록 객체는 생성할 수 없지만, 추상 클래스를 가리키는 포인터는 문제 없이 만들 수 있다는 점입니다. 위 예에서도 살펴보았듯이, 아무런 문제 없이 `Animal*` 의 변수를 생성하였습니다. (자바랑 유사하네요.)
+
+### 다중 상속
 
